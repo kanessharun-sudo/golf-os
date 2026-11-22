@@ -55,6 +55,7 @@ export default async function BookPage({ params, searchParams }: PageProps) {
         maxPlayers: course.max_players_per_slot,
         holdMinutes: course.checkout_hold_minutes,
         allowJoin: course.allow_join_open_batch,
+        guestFeePaise: course.pricing.guest_green_fee ?? null,
       }}
       dates={dates}
       date={date}

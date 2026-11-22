@@ -40,6 +40,9 @@ export type CoursePricing = {
   weekend_isodow: IsoWeekday[];
   tournament_entry_addon: Paise;
   platform_convenience_fee_percent: number;
+  /** Phase 4: flat green fee for non-members; members pay member_green_fee (0 at ASC). */
+  guest_green_fee?: Paise;
+  member_green_fee?: Paise;
 };
 
 export type CourseMedia = {
@@ -67,11 +70,17 @@ export type LedgerEntryType = "round_earning" | "tip" | "adjustment" | "payout" 
 export type LedgerDirection = "credit" | "debit";
 export type PayoutStatus = "requested" | "approved" | "processing" | "paid" | "rejected" | "failed" | "cancelled";
 export type HandicapTrack = "nine_hole" | "eighteen_hole";
+export type MemberStatus = "active" | "lapsed";
 export type GalleryCategory = "tournament" | "course" | "round" | "social";
 
 /** Messages raised by RPCs and triggers (PostgrestError.message). */
 export type GolfOsDbErrorCode =
   | "auth_required"
+  | "payment_required"
+  | "free_confirm_failed"
+  | "assignment_not_found"
+  | "check_in_only_on_the_day"
+  | "booking_not_active"
   | "round_not_open_yet"
   | "round_window_closed"
   | "round_not_found"
@@ -153,6 +162,11 @@ export interface HoldQuote {
   total_paise: Paise;
   caddy_assignment_ids: Uuid[];
   quoted_at: IsoTimestamp;
+  members?: number;
+  guests?: number;
+  member_green_fee_paise?: Paise;
+  guest_green_fee_paise?: Paise;
+  member_seats?: number[];
 }
 
 export type ConfirmPaymentResult =
@@ -294,6 +308,9 @@ export type Database = {
           created_by: Uuid | null;
           created_at: IsoTimestamp;
           updated_at: IsoTimestamp;
+          member_sheet_url: string | null;
+          members_synced_at: IsoTimestamp | null;
+          members_sync_error: string | null;
         };
         Insert: {
           id?: Uuid;
@@ -337,6 +354,9 @@ export type Database = {
           created_by?: Uuid | null;
           created_at?: IsoTimestamp;
           updated_at?: IsoTimestamp;
+          member_sheet_url?: string | null;
+          members_synced_at?: IsoTimestamp | null;
+          members_sync_error?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["courses"]["Insert"]>;
         Relationships: [
@@ -802,6 +822,7 @@ export type Database = {
           email: string | null;
           profile_id: Uuid | null;
           is_booker: boolean;
+          is_member: boolean;
           created_at: IsoTimestamp;
         };
         Insert: {
@@ -848,6 +869,7 @@ export type Database = {
           hold_expires_at: IsoTimestamp | null;
           rate_paise: Paise;
           seat_number: 1 | 2 | 3 | 4 | null;
+          checked_in_at: IsoTimestamp | null;
           created_at: IsoTimestamp;
           updated_at: IsoTimestamp;
         };
@@ -1327,6 +1349,7 @@ export type Database = {
           phone: string | null;
           email: string | null;
           is_booker: boolean;
+          is_member: boolean;
         };
         /** Written only through save_hold_details(). */
         Insert: {
@@ -1347,6 +1370,32 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      club_members: {
+        Row: {
+          id: Uuid;
+          course_id: Uuid;
+          member_no: string;
+          full_name: string;
+          phone: string | null;
+          email: string | null;
+          status: MemberStatus;
+          source: "sheet" | "demo";
+          synced_at: IsoTimestamp;
+        };
+        Insert: {
+          id?: Uuid;
+          course_id: Uuid;
+          member_no: string;
+          full_name: string;
+          phone?: string | null;
+          email?: string | null;
+          status?: MemberStatus;
+          source?: "sheet" | "demo";
+          synced_at?: IsoTimestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["club_members"]["Insert"]>;
+        Relationships: [];
       };
       /** Service role only. */
       payment_events: {
@@ -1588,6 +1637,52 @@ export type Database = {
         Args: { p_booking_id: Uuid; p_reason?: string | null };
         Returns: { refund_paise: Paise; booking_status: BookingStatus }[];
       };
+      // ---- Phase 4: members, caddie desk (007) ---------------------------------
+      replace_sheet_members: {
+        Args: { p_course_id: Uuid; p_rows: Json; p_error?: string | null };
+        Returns: number;
+      };
+      is_club_member: {
+        Args: { p_course_id: Uuid; p_phone: string | null; p_email: string | null };
+        Returns: boolean;
+      };
+      confirm_free_hold: {
+        Args: { p_hold_id: Uuid };
+        Returns: Uuid;
+      };
+      claim_my_bookings: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      get_caddy_schedule: {
+        Args: { p_from: IsoDate; p_to: IsoDate };
+        Returns: {
+          assignment_id: Uuid;
+          status: CaddyAssignmentStatus;
+          checked_in_at: IsoTimestamp | null;
+          rate_paise: Paise;
+          seat_number: number | null;
+          booking_id: Uuid;
+          booking_ref: string;
+          booking_status: BookingStatus;
+          play_date: IsoDate;
+          tee_time: IsoTime;
+          start_hole: 1 | 10;
+          hole_format: HoleFormat;
+          player_name: string | null;
+          group_names: string[] | null;
+          player_count: number;
+          course_name: string;
+        }[];
+      };
+      caddy_check_in: {
+        Args: { p_assignment_id: Uuid };
+        Returns: IsoTimestamp;
+      };
+      seed_demo_tee_sheet: {
+        Args: { p_course_id: Uuid; p_booker: Uuid; p_days?: number };
+        Returns: number;
+      };
       // ---- Phase 3: live scoring (006) -----------------------------------------
       start_round: {
         Args: { p_booking_id: Uuid };
@@ -1736,6 +1831,7 @@ export type Database = {
       gallery_category: GalleryCategory;
       notification_channel: NotificationChannel;
       notification_status: NotificationStatus;
+      member_status: MemberStatus;
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1785,6 +1881,8 @@ export type TeeSheetSlot = RpcReturns<"get_tee_sheet">[number];
 export type HoldCaddy = RpcReturns<"get_hold_caddies">[number];
 export type BookingCaddy = RpcReturns<"get_booking_caddies">[number];
 export type LeaderboardRow = RpcReturns<"get_tournament_leaderboard">[number];
+export type ClubMember = Tables<"club_members">;
+export type CaddyScheduleRow = RpcReturns<"get_caddy_schedule">[number];
 
 export const Constants = {
   public: {
@@ -1807,6 +1905,7 @@ export const Constants = {
       gallery_category: ["tournament", "course", "round", "social"],
       notification_channel: ["email", "whatsapp", "sms"],
       notification_status: ["queued", "sent", "failed", "skipped"],
+      member_status: ["active", "lapsed"],
     },
   },
 } as const satisfies {

@@ -10,9 +10,9 @@ const MESSAGES: Partial<Record<GolfOsDbErrorCode, string>> = {
   tee_time_in_past: "That tee time has already gone.",
   inside_booking_cutoff: "Online booking for that tee time has closed.",
   beyond_booking_window: "That date is not open for booking yet.",
-  invalid_seat_count: "Choose between 1 and 4 players.",
+  invalid_seat_count: "Choose between 1 and 4 players. A blocked slot is a 3-ball or a 4-ball.",
   slot_full: "Someone has just taken those seats. Please pick another time.",
-  slot_not_empty_for_private: "A private four-ball needs an empty slot.",
+  slot_not_empty_for_private: "Only an empty slot can be blocked for your group.",
   open_batch_join_disabled: "This course does not let groups join a partly filled slot.",
   hold_not_found: "We could not find your reserved seats.",
   hold_expired: "Your 7-minute hold has run out. Please pick the tee time again.",
@@ -36,6 +36,11 @@ const MESSAGES: Partial<Record<GolfOsDbErrorCode, string>> = {
   booking_not_playable: "This booking cannot be played.",
   scores_incomplete: "Every player needs a score on every hole before you submit.",
   hole_outside_round: "That hole is not part of this round.",
+  payment_required: "This booking has a balance to pay.",
+  free_confirm_failed: "The booking could not be confirmed. Please try again.",
+  assignment_not_found: "We could not find that group on your schedule.",
+  check_in_only_on_the_day: "Check-in opens on the day of the round.",
+  booking_not_active: "This booking is no longer active.",
 };
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string; code?: string };

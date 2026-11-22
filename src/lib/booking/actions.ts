@@ -7,6 +7,7 @@ import { isDemoPayments, publicEnv } from "@/lib/env";
 import { notifyBooking } from "@/lib/notifications/booking";
 import { createOrder, RazorpayError } from "@/lib/payments/razorpay";
 import { refundOnce, settleDemoPayment, type SettleOutcome } from "@/lib/payments/settle";
+import { syncMembersIfStale } from "@/lib/members/sync";
 import { normalisePhone } from "@/lib/phone";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -46,13 +47,16 @@ export async function acquireHoldAction(input: z.input<typeof acquireSchema>): P
   if (!user) return unauthenticated;
 
   const { courseId, playDate, teeTime, holeFormat, seats, isPrivate } = parsed.data;
+  if (isPrivate && seats < 3) {
+    return { ok: false, error: "A blocked slot is a 3-ball or a 4-ball. Choose 3 or 4 players." };
+  }
   const { data, error } = await supabase.rpc("acquire_slot_hold", {
     p_course_id: courseId,
     p_play_date: playDate,
     p_tee_time: teeTime,
     p_hole_format: holeFormat,
-    // A private four-ball holds the whole slot; the hold records every seat.
-    p_seats: isPrivate ? 4 : seats,
+    // A blocked 3-ball or 4-ball closes the whole slot; the hold records the seats played.
+    p_seats: seats,
     p_is_private: isPrivate,
   });
   if (error) return toActionError(error);
@@ -128,6 +132,10 @@ export async function saveHoldDetailsAction(input: z.input<typeof detailsSchema>
     });
   }
   if (players.filter((p) => p.is_booker).length > 1) return invalidInput;
+
+  // Member pricing reads the club's sheet; refresh it if the copy is stale.
+  const { data: holdCourse } = await supabase.from("slot_holds").select("course_id").eq("id", parsed.data.holdId).maybeSingle();
+  if (holdCourse) await syncMembersIfStale(holdCourse.course_id);
 
   const { error } = await supabase.rpc("save_hold_details", {
     p_hold_id: parsed.data.holdId,
@@ -275,6 +283,19 @@ export async function createPaymentOrderAction(holdId: string): Promise<ActionRe
   if (attachError) return toActionError(attachError);
 
   return { ok: true, data: { ...base, orderId: order.id, amount: order.amount, currency: order.currency } };
+}
+
+/** Every player is a member and no caddie was added: nothing to pay, so confirm directly. */
+export async function confirmFreeBookingAction(holdId: string): Promise<ActionResult<{ bookingId: Uuid }>> {
+  if (!uuid.safeParse(holdId).success) return invalidInput;
+  const { supabase, user } = await requireUser();
+  if (!user) return unauthenticated;
+
+  const { data: bookingId, error } = await supabase.rpc("confirm_free_hold", { p_hold_id: holdId });
+  if (error) return toActionError(error);
+  await notifyBooking(bookingId, "booking_confirmed");
+  revalidatePath("/bookings");
+  return { ok: true, data: { bookingId } };
 }
 
 /**

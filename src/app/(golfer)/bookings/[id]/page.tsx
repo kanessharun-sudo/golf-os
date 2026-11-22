@@ -37,7 +37,7 @@ export default async function BookingPage({
   if (!booking) notFound();
 
   const [{ data: players }, { data: caddies }, { data: round }, { data: auth }] = await Promise.all([
-    supabase.from("booking_players").select("seat_number, full_name, is_booker").eq("booking_id", id).order("seat_number"),
+    supabase.from("booking_players").select("seat_number, full_name, is_booker, is_member").eq("booking_id", id).order("seat_number"),
     supabase.rpc("get_booking_caddies", { p_booking_id: id }),
     supabase.from("rounds").select("id, status").eq("booking_id", id).maybeSingle(),
     supabase.auth.getUser(),
@@ -145,6 +145,7 @@ export default async function BookingPage({
                 <span className="text-pine">
                   {p.full_name}
                   {p.is_booker ? <span className="ml-2 text-xs text-ink-faint">Booker</span> : null}
+                  <span className="ml-2 text-xs text-ink-faint">{p.is_member ? "Member" : "Guest"}</span>
                 </span>
                 <span className="text-ink-muted">{caddy ? `Caddy: ${caddy.full_name} (${caddy.caddy_code})` : "No caddy"}</span>
               </li>

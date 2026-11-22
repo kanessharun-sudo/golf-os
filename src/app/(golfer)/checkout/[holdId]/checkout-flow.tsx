@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Notice } from "@/components/ui/notice";
 import {
   completeDemoPaymentAction,
+  confirmFreeBookingAction,
   createPaymentOrderAction,
   type CheckoutOrder,
   holdCaddyAction,
@@ -101,7 +102,7 @@ export function CheckoutFlow(props: Props) {
   // --- players ---------------------------------------------------------------
   const initialRows: PlayerRow[] = savedPlayers.length
     ? savedPlayers.map((p) => ({ fullName: p.full_name, phone: p.phone ?? "", email: p.email ?? "" }))
-    : Array.from({ length: hold.isPrivate ? 1 : hold.seats }, (_, i) => ({
+    : Array.from({ length: hold.seats }, (_, i) => ({
         fullName: i === 0 ? bookerName : "",
         phone: "",
         email: "",
@@ -212,6 +213,16 @@ export function CheckoutFlow(props: Props) {
   async function pay() {
     setError(null);
     setBusy("pay");
+    if (quote && quote.total_paise === 0) {
+      const free = await confirmFreeBookingAction(hold.id);
+      if (!free.ok) {
+        setBusy(null);
+        setError(free.error);
+        return;
+      }
+      router.replace(`/bookings/${free.data.bookingId}?paid=1`);
+      return;
+    }
     const orderResult = await createPaymentOrderAction(hold.id);
     if (!orderResult.ok) {
       setBusy(null);
@@ -472,7 +483,7 @@ export function CheckoutFlow(props: Props) {
                   </Button>
                 ) : null}
                 <p className="text-xs text-ink-muted">
-                  Players with a Golf OS account on the same mobile or email get this round on their profile automatically.
+                  Club members play free: use the mobile or email the club has on file. Guests pay the guest green fee, paid by you as the booker. Each player sees this booking and can score live once they sign in with the same mobile or email.
                 </p>
               </div>
 
@@ -617,7 +628,14 @@ export function CheckoutFlow(props: Props) {
                 <div className="rule-brass my-5" />
                 {quote ? (
                   <dl className="numerals space-y-2 text-sm">
-                    <Row label={`Green fees · ${quote.players} × ${quote.is_weekend ? "weekend" : "weekday"}`} value={formatPaise(quote.green_fee_paise)} />
+                    {quote.guests !== undefined && quote.guest_green_fee_paise !== undefined ? (
+                      <>
+                        <Row label={`Members · ${quote.members ?? 0} × free`} value={formatPaise((quote.members ?? 0) * (quote.member_green_fee_paise ?? 0))} />
+                        <Row label={`Guests · ${quote.guests} × ${formatPaise(quote.guest_green_fee_paise)}`} value={formatPaise(quote.guests * quote.guest_green_fee_paise)} />
+                      </>
+                    ) : (
+                      <Row label={`Green fees · ${quote.players} × ${quote.is_weekend ? "weekend" : "weekday"}`} value={formatPaise(quote.green_fee_paise)} />
+                    )}
                     {quote.caddy_fee_paise > 0 ? <Row label="Caddy fees" value={formatPaise(quote.caddy_fee_paise)} /> : null}
                     {quote.tournament_addon_paise > 0 ? <Row label="Tournament entry" value={formatPaise(quote.tournament_addon_paise)} /> : null}
                     <Row label={`Convenience fee (${quote.convenience_fee_percent}%)`} value={formatPaise(quote.convenience_fee_paise)} />
@@ -635,10 +653,12 @@ export function CheckoutFlow(props: Props) {
               <div className="space-y-4">
                 <Button variant="brass" size="lg" className="w-full" disabled={!quote || busy !== null} onClick={() => void pay()}>
                   {busy === "pay" ? <Loader2 className="animate-spin" /> : null}
-                  {quote ? `Pay ${formatPaise(quote.total_paise)}` : "Pay"}
+                  {quote ? (quote.total_paise === 0 ? "Confirm booking" : `Pay ${formatPaise(quote.total_paise)}`) : "Pay"}
                 </Button>
                 <p className="text-xs text-ink-muted">
-                  {DEMO_PAYMENTS
+                  {quote?.total_paise === 0
+                    ? "Every player is a club member, so there is nothing to pay."
+                    : DEMO_PAYMENTS
                     ? "Demo mode: the payment screen is simulated and no money is taken."
                     : "UPI, cards, netbanking and wallets via Razorpay."}
                 </p>
@@ -795,7 +815,7 @@ function Shell({
           </h1>
           <p className="numerals mt-1 text-sm text-ink-muted">
             {HOLE_FORMAT_LABEL[hold.holeFormat]} from hole {hold.startHole}
-            {hold.isPrivate ? " · Private four-ball" : ` · ${hold.seats} seat${hold.seats > 1 ? "s" : ""}`}
+            {hold.isPrivate ? ` · Blocked ${hold.seats}-ball` : ` · ${hold.seats} seat${hold.seats > 1 ? "s" : ""}`}
           </p>
         </div>
         {aside}

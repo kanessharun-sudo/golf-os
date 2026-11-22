@@ -113,25 +113,33 @@ reset role;
 
 -- Caddie schedule and check-in.
 update public.profiles set role = 'caddy' where id = '00000000-0000-4000-a000-000000000003';
-update public.caddies set profile_id = '00000000-0000-4000-a000-000000000003' where caddy_code = 'ASC-C03';
 do $$
-declare ctx t5; v_seeded int; v_a uuid; v_b uuid;
+declare ctx t5; v_seeded int; v_a uuid; v_b uuid; v_c record;
 begin
   select * into ctx from t5;
   v_seeded := public.seed_demo_tee_sheet(ctx.course_id, '00000000-0000-4000-a000-000000000004', 3);
   assert v_seeded > 0, 'demo seed created bookings';
   assert public.seed_demo_tee_sheet(ctx.course_id, '00000000-0000-4000-a000-000000000004', 3) = 0, 'seed is idempotent';
+  assert exists (select 1 from public.bookings where notes = 'demo_seed' and payment_status = 'waived'), 'some seeded groups play free';
 
-  -- Give caddie C03 a booking today for the check-in test.
+  -- Today's seeded groups exist unless the course is closed today.
   select b.id into v_b from public.bookings b
    where b.notes = 'demo_seed' and b.play_date = (now() at time zone 'Asia/Kolkata')::date
      and not exists (select 1 from public.caddy_assignments a where a.booking_id = b.id and a.status = 'confirmed')
    limit 1;
   if v_b is not null then
-    insert into public.caddy_assignments (course_id, caddy_id, booking_id, seat_number, hole_format, starts_at, ends_at, status, rate_paise)
-    select ctx.course_id, c.id, v_b, 2, 'full_18', b.tee_starts_at, b.tee_starts_at + interval '4 hours', 'confirmed', 90000
-    from public.caddies c, public.bookings b where c.caddy_code = 'ASC-C03' and b.id = v_b
-    returning id into v_a;
+    for v_c in select id from public.caddies where course_id = ctx.course_id order by caddy_code loop
+      begin
+        insert into public.caddy_assignments (course_id, caddy_id, booking_id, seat_number, hole_format, starts_at, ends_at, status, rate_paise)
+        select ctx.course_id, v_c.id, v_b, 2, 'full_18', b.tee_starts_at, b.tee_starts_at + interval '4 hours', 'confirmed', 90000
+        from public.bookings b where b.id = v_b
+        returning id into v_a;
+        update public.caddies set profile_id = '00000000-0000-4000-a000-000000000003' where id = v_c.id;
+        exit;
+      exception when exclusion_violation then
+        null;
+      end;
+    end loop;
     insert into t5_state values ('assignment', v_a::text);
   end if;
 end $$;
@@ -145,11 +153,18 @@ begin
   assert n >= 1 or v_a is null, 'caddie sees own schedule';
   if v_a is not null then
     assert public.caddy_check_in(v_a) is not null, 'check-in stamps time';
-    assert (select status from public.bookings b join public.caddy_assignments a on a.booking_id = b.id where a.id = v_a)
-           = 'checked_in', 'booking marked checked in';
   end if;
 end $$;
 reset role;
+
+do $$
+declare v_a uuid := (select v::uuid from t5_state where k = 'assignment');
+begin
+  if v_a is not null then
+    assert (select b.status from public.bookings b join public.caddy_assignments a on a.booking_id = b.id where a.id = v_a)
+           = 'checked_in', 'booking marked checked in';
+  end if;
+end $$;
 
 -- Another user cannot check in someone else's assignment.
 set local role authenticated;

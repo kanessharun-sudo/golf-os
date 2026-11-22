@@ -13,7 +13,17 @@ import type { HoleFormat, IsoDate, TeeSheetSlot, TeeSheetUnavailableReason, Uuid
 export type DateOption = { date: IsoDate; closed: boolean };
 
 type Props = {
-  course: { id: Uuid; slug: string; name: string; holesCount: number; maxPlayers: number; holdMinutes: number; allowJoin: boolean };
+  course: {
+    id: Uuid;
+    slug: string;
+    name: string;
+    holesCount: number;
+    maxPlayers: number;
+    holdMinutes: number;
+    allowJoin: boolean;
+    /** Flat non-member fee when the course prices members and guests separately. */
+    guestFeePaise: number | null;
+  };
   dates: DateOption[];
   date: IsoDate;
   format: HoleFormat;
@@ -27,7 +37,7 @@ const REASON_LABEL: Record<TeeSheetUnavailableReason, string> = {
   beyond_booking_window: "Not open yet",
   tee_time_in_past: "Gone",
   inside_booking_cutoff: "Closed online",
-  private_four_ball: "Private",
+  private_four_ball: "Blocked",
   slot_full: "Full",
   open_batch_join_disabled: "Taken",
 };
@@ -175,7 +185,7 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
           <button
             type="button"
             aria-label="Fewer players"
-            disabled={players <= 1 || isPrivate}
+            disabled={players <= (isPrivate ? 3 : 1)}
             onClick={() => navigate({ players: players - 1 })}
             className="grid size-9 place-items-center rounded-[0.25rem] text-pine hover:bg-pine-50 disabled:opacity-30"
           >
@@ -183,12 +193,12 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
           </button>
           <span className="numerals flex min-w-24 items-center justify-center gap-1.5 text-sm text-pine" aria-live="polite">
             <Users className="size-4" aria-hidden />
-            {isPrivate ? "Private 4" : `${players} player${players > 1 ? "s" : ""}`}
+            {isPrivate ? `${players}-ball` : `${players} player${players > 1 ? "s" : ""}`}
           </span>
           <button
             type="button"
             aria-label="More players"
-            disabled={players >= course.maxPlayers || isPrivate}
+            disabled={players >= course.maxPlayers}
             onClick={() => navigate({ players: players + 1 })}
             className="grid size-9 place-items-center rounded-[0.25rem] text-pine hover:bg-pine-50 disabled:opacity-30"
           >
@@ -200,11 +210,14 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
           <input
             type="checkbox"
             checked={isPrivate}
-            onChange={(e) => setIsPrivate(e.target.checked)}
+            onChange={(e) => {
+              setIsPrivate(e.target.checked);
+              if (e.target.checked && players < 3) navigate({ players: Math.min(4, course.maxPlayers) });
+            }}
             className="size-4 accent-pine"
           />
           <Lock className="size-3.5" aria-hidden />
-          Private four-ball (no one else joins)
+          Block the slot as a 3-ball or 4-ball
         </label>
 
         {navigating ? <Loader2 className="size-4 animate-spin text-ink-faint" aria-label="Loading" /> : null}
@@ -213,6 +226,7 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
       <p className="mt-4 text-sm text-ink-muted">
         {formatPlayDate(date)} · {HOLE_FORMAT_LABEL[format]}
         {format === "back_9" ? " (tees off on hole 10)" : ""}. Seats are held for {course.holdMinutes} minutes while you pay.
+        {course.guestFeePaise !== null ? ` Members play free; guests pay ${formatPaise(course.guestFeePaise)} each.` : ""}
       </p>
 
       {error ? (
@@ -234,7 +248,7 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
               <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
                 <AnimatePresence initial={false}>
                   {group.items.map((slot) => {
-                    const wanted = isPrivate ? course.maxPlayers : players;
+                    const wanted = players;
                     const blockedReason: string | null = slot.unavailable_reason
                       ? REASON_LABEL[slot.unavailable_reason]
                       : isPrivate && slot.seats_taken > 0
@@ -276,7 +290,8 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
                             ) : null}
                           </span>
                           <span className="mt-2 block text-xs">
-                            {blockedReason ?? `${formatPaise(price)} / player`}
+                            {blockedReason ??
+                              (course.guestFeePaise !== null ? `Guests ${formatPaise(course.guestFeePaise)}` : `${formatPaise(price)} / player`)}
                           </span>
                         </button>
                       </motion.li>

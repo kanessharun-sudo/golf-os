@@ -16,6 +16,8 @@ export default async function BookingsPage() {
   if (!session) redirect("/login?next=/bookings");
 
   const supabase = await getSupabaseServerClient();
+  // Link seats other people booked for this golfer (same email or mobile) before listing.
+  await supabase.rpc("claim_my_bookings");
   const { data: bookings, error } = await supabase
     .from("bookings")
     .select("id, booking_ref, play_date, tee_time, hole_format, player_count, status, total_paise, tee_starts_at, booked_by, courses(name, slug)")

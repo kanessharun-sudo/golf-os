@@ -14,6 +14,16 @@ export default async function GolferLayout({ children }: Readonly<{ children: Re
           <nav className="flex items-center gap-5 text-sm">
             {session ? (
               <>
+                {session.profile.role === "course_admin" || session.profile.role === "super_admin" ? (
+                  <Link href="/admin" className="text-ink-muted transition-colors hover:text-pine">
+                    Club office
+                  </Link>
+                ) : null}
+                {session.profile.role === "caddy" ? (
+                  <Link href="/caddy" className="text-ink-muted transition-colors hover:text-pine">
+                    Caddie desk
+                  </Link>
+                ) : null}
                 <Link href="/bookings" className="text-ink-muted transition-colors hover:text-pine">
                   My bookings
                 </Link>
