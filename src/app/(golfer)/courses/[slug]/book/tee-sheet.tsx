@@ -117,6 +117,7 @@ export function TeeSheet({ course, courses, dates, today, date, format, players:
   }
 
   const quick = quickDates(dates, today);
+  const nextOpenDate = dates.find((d) => d.date > date && !d.closed)?.date ?? null;
   const nine = format !== "full_18";
 
   return (
@@ -159,8 +160,9 @@ export function TeeSheet({ course, courses, dates, today, date, format, players:
       <div className="mx-auto max-w-6xl px-5">
         <div
           className={cn(
-            "relative z-10 grid border border-alabaster-300 bg-alabaster-50 md:-mt-20 md:mr-24 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.6fr)_minmax(0,1.7fr)_auto_auto]",
-            "mt-6 divide-y divide-alabaster-300 md:divide-x md:divide-y-0",
+            "relative z-10 mt-6 grid border border-alabaster-300 bg-alabaster-50 md:-mt-16",
+            "grid-cols-2 [&>*]:border-alabaster-300 [&>*]:border-t [&>*:nth-child(-n+2)]:border-t-0 [&>*:nth-child(even)]:border-l",
+            "lg:grid-cols-[minmax(11rem,1fr)_auto_auto_auto_auto] lg:[&>*]:border-t-0 lg:[&>*:not(:first-child)]:border-l",
           )}
         >
           <Segment label="Course">
@@ -181,7 +183,7 @@ export function TeeSheet({ course, courses, dates, today, date, format, players:
             </div>
           </Segment>
 
-          <Segment label="Date">
+          <Segment label="Date" wide>
             <div className="flex flex-wrap items-center gap-1">
               {quick.map((q) => (
                 <Choice key={q.label} active={q.date === date} disabled={q.closed} onClick={() => navigate({ date: q.date })}>
@@ -211,8 +213,8 @@ export function TeeSheet({ course, courses, dates, today, date, format, players:
             </div>
           </Segment>
 
-          <Segment label="Window">
-            <div className="grid grid-cols-3 gap-1" role="radiogroup" aria-label="Time window">
+          <Segment label="Window" wide>
+            <div className="grid grid-cols-3 gap-1 lg:flex" role="radiogroup" aria-label="Time window">
               {windows.map((w) => (
                 <button
                   key={w.id}
@@ -226,8 +228,8 @@ export function TeeSheet({ course, courses, dates, today, date, format, players:
                     w.id === windowId ? "bg-alabaster-200 shadow-[inset_0_0_0_1px_rgb(24_22_20/0.35)]" : "hover:bg-alabaster-200/60",
                   )}
                 >
-                  <span className="block text-sm text-pine">{w.label}</span>
-                  <span className="block font-mono text-[11px] tabular-nums text-ink-muted">{w.range}</span>
+                  <span className="block whitespace-nowrap text-sm text-pine">{w.label}</span>
+                  <span className="block whitespace-nowrap font-mono text-[11px] tabular-nums text-ink-muted">{w.range}</span>
                 </button>
               ))}
             </div>
@@ -276,6 +278,17 @@ export function TeeSheet({ course, courses, dates, today, date, format, players:
           <Notice tone="error" className="mt-6">
             {error}
           </Notice>
+        ) : null}
+
+        {visible.length > 0 && !visible.some((s) => blockedReason(s, players) === null) ? (
+          <div className="mt-10 flex flex-wrap items-baseline justify-between gap-3 border-y border-alabaster-300 py-4 text-sm">
+            <span className="text-pine">No tee time on {formatPlayDate(date)} takes a party of {players}.</span>
+            {nextOpenDate ? (
+              <button type="button" onClick={() => navigate({ date: nextOpenDate })} className="text-brass-600 underline-offset-4 hover:underline">
+                See {formatPlayDate(nextOpenDate, "short")}
+              </button>
+            ) : null}
+          </div>
         ) : null}
 
         <Chronograph
@@ -333,9 +346,9 @@ function quickDates(dates: DateOption[], today: IsoDate) {
   return out;
 }
 
-function Segment({ label, children }: { label: string; children: React.ReactNode }) {
+function Segment({ label, wide = false, children }: { label: string; wide?: boolean; children: React.ReactNode }) {
   return (
-    <div className="min-w-0 px-4 py-3">
+    <div className={cn("min-w-0 px-4 py-3", wide && "col-span-2 lg:col-span-1")}>
       <p className="mb-1.5 text-xs text-ink-muted">{label}</p>
       {children}
     </div>

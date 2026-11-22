@@ -87,7 +87,7 @@ export function Chronograph(props: Props) {
             <caption className="sr-only">
               Tee times by hour. Columns are minutes past the hour.
             </caption>
-            <thead>
+            <thead className="sr-only">
               <tr>
                 <th scope="col" className="w-20 py-2 text-left text-xs font-normal text-ink-muted">
                   Hour
