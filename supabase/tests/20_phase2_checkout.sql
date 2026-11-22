@@ -68,8 +68,10 @@ begin
   a := public.hold_caddy(h.id, ctx.c01, 2::smallint);
 
   q := public.quote_slot_hold(h.id);
-  -- 2 × 200000 green + tournament 2 × 50000 + two caddies, fee 2.5% rounded.
-  assert (q ->> 'green_fee_paise')::int = 400000, q::text;
+  -- Phase 4 pricing: seat 2's mobile is on the member roll (free), Kavya is a
+  -- guest at 100000; tournament 2 × 50000 + two caddies, fee 2.5% rounded.
+  assert (q ->> 'members')::int = 1 and (q ->> 'guests')::int = 1, q::text;
+  assert (q ->> 'green_fee_paise')::int = 100000, q::text;
   assert (q ->> 'tournament_addon_paise')::int = 100000, q::text;
   assert (q ->> 'convenience_fee_paise')::int
          = round(((q ->> 'green_fee_paise')::int + (q ->> 'caddy_fee_paise')::int + 100000) * 0.025), q::text;

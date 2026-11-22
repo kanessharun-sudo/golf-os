@@ -66,7 +66,7 @@ begin
     raise exception 'expected slot_full';
   exception when others then assert sqlerrm = 'slot_full', sqlerrm; end;
   begin
-    perform public.acquire_slot_hold(ctx.course_id, ctx.play_date, '05:00', 'full_18', 1::smallint, true);
+    perform public.acquire_slot_hold(ctx.course_id, ctx.play_date, '05:00', 'full_18', 4::smallint, true);
     raise exception 'expected private rejection';
   exception when others then assert sqlerrm = 'slot_not_empty_for_private', sqlerrm; end;
   perform public.acquire_slot_hold(ctx.course_id, ctx.play_date, '05:00', 'full_18', 1::smallint);
