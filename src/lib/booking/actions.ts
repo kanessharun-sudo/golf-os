@@ -123,11 +123,14 @@ export async function saveHoldDetailsAction(input: z.input<typeof detailsSchema>
       phone = normalisePhone(p.phone);
       if (!phone) return { ok: false, error: `The mobile number for ${p.fullName} is not valid.` };
     }
+    // The booker's own seat falls back to the account's email and mobile, so a
+    // member booking for themselves is recognised without retyping them.
+    const accountPhone = p.isBooker && !phone && user.phone ? normalisePhone(`+${user.phone.replace(/^\+/, "")}`) : null;
     players.push({
       seat_number: p.seatNumber,
       full_name: p.fullName,
-      phone,
-      email: p.email ? p.email.toLowerCase() : null,
+      phone: phone ?? accountPhone,
+      email: p.email ? p.email.toLowerCase() : p.isBooker && user.email ? user.email.toLowerCase() : null,
       is_booker: p.isBooker,
     });
   }
