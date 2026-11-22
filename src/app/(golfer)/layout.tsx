@@ -8,10 +8,10 @@ export default async function GolferLayout({ children }: Readonly<{ children: Re
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 bg-pine text-alabaster">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5">
-          <Link href="/" className="font-sans text-lg font-bold tracking-tight text-alabaster">
+          <Link href="/" className="shrink-0 whitespace-nowrap font-sans text-lg font-bold tracking-tight text-alabaster">
             Golf OS
           </Link>
-          <nav className="flex items-center gap-5 text-sm">
+          <nav className="flex items-center gap-3 whitespace-nowrap text-[13px] sm:gap-5 sm:text-sm">
             {session ? (
               <>
                 {session.profile.role === "course_admin" || session.profile.role === "super_admin" ? (
@@ -24,7 +24,10 @@ export default async function GolferLayout({ children }: Readonly<{ children: Re
                     Caddie desk
                   </Link>
                 ) : null}
-                <Link href="/bookings" className="text-alabaster/80 transition-colors hover:text-alabaster">
+                <Link
+                  href="/bookings"
+                  className={`${session.profile.role === "caddy" ? "hidden sm:inline" : ""} text-alabaster/80 transition-colors hover:text-alabaster`}
+                >
                   My bookings
                 </Link>
                 <Link href={`/golfers/${session.profile.username}`} className="text-alabaster/80 transition-colors hover:text-alabaster">
