@@ -6,38 +6,38 @@ export default async function GolferLayout({ children }: Readonly<{ children: Re
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-alabaster-300/70 bg-alabaster-50/85 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
-          <Link href="/" className="font-display text-2xl tracking-wide text-pine">
-            Golf<span className="text-brass">·</span>OS
+      <header className="sticky top-0 z-30 bg-pine text-alabaster">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5">
+          <Link href="/" className="font-sans text-lg font-bold tracking-tight text-alabaster">
+            Golf OS
           </Link>
           <nav className="flex items-center gap-5 text-sm">
             {session ? (
               <>
                 {session.profile.role === "course_admin" || session.profile.role === "super_admin" ? (
-                  <Link href="/admin" className="text-ink-muted transition-colors hover:text-pine">
+                  <Link href="/admin" className="text-alabaster/80 transition-colors hover:text-alabaster">
                     Club office
                   </Link>
                 ) : null}
                 {session.profile.role === "caddy" ? (
-                  <Link href="/caddy" className="text-ink-muted transition-colors hover:text-pine">
+                  <Link href="/caddy" className="text-alabaster/80 transition-colors hover:text-alabaster">
                     Caddie desk
                   </Link>
                 ) : null}
-                <Link href="/bookings" className="text-ink-muted transition-colors hover:text-pine">
+                <Link href="/bookings" className="text-alabaster/80 transition-colors hover:text-alabaster">
                   My bookings
                 </Link>
-                <Link href={`/golfers/${session.profile.username}`} className="text-ink-muted transition-colors hover:text-pine">
+                <Link href={`/golfers/${session.profile.username}`} className="text-alabaster/80 transition-colors hover:text-alabaster">
                   Profile
                 </Link>
                 <form action="/auth/signout" method="post">
-                  <button type="submit" className="text-ink-faint transition-colors hover:text-pine">
+                  <button type="submit" className="text-alabaster/60 transition-colors hover:text-alabaster">
                     Sign out
                   </button>
                 </form>
               </>
             ) : (
-              <Link href="/login" className="text-pine underline-offset-4 hover:underline">
+              <Link href="/login" className="text-alabaster underline-offset-4 hover:underline">
                 Sign in
               </Link>
             )}

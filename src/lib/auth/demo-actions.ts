@@ -138,23 +138,6 @@ async function prepareRole(role: DemoRole, userId: Uuid, email: string, tag: str
 
   const { error: roleError } = await admin.from("profiles").update({ role: "caddy" }).eq("id", userId);
   if (roleError) throw roleError;
-  const { error: linkError } = await admin
-    .from("caddies")
-    .update({ profile_id: userId, upi_id: "demo.caddie@okaxis" })
-    .eq("id", chosen.id);
+  const { error: linkError } = await admin.from("caddies").update({ profile_id: userId }).eq("id", chosen.id);
   if (linkError) throw linkError;
-
-  // Give the demo caddie something to request a payout against.
-  const { count } = await admin.from("caddy_ledger").select("id", { count: "exact", head: true }).eq("caddy_id", chosen.id);
-  if (!count) {
-    const { error: ledgerError } = await admin.from("caddy_ledger").insert({
-      caddy_id: chosen.id,
-      course_id: course.id,
-      entry_type: "adjustment",
-      direction: "credit",
-      amount_paise: 250_000,
-      description: "Opening balance (demo)",
-    });
-    if (ledgerError) throw ledgerError;
-  }
 }

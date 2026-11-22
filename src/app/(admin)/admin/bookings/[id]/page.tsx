@@ -21,7 +21,7 @@ export default async function AdminBookingPage({ params }: { params: Promise<{ i
   const { data: b, error } = await supabase
     .from("bookings")
     .select(
-      "id, booking_ref, play_date, tee_time, tee_starts_at, start_hole, hole_format, status, payment_status, is_private, green_fee_paise, caddy_fee_paise, convenience_fee_paise, total_paise, refund_paise, cancellation_reason, notes, course_id, booking_players!booking_players_booking_id_fkey(seat_number, full_name, phone, email, is_member, is_booker), caddy_assignments!caddy_assignments_booking_id_fkey(id, seat_number, status, checked_in_at, rate_paise, caddies!caddy_assignments_course_id_caddy_id_fkey(full_name, caddy_code))",
+      "id, booking_ref, play_date, tee_time, tee_starts_at, start_hole, hole_format, status, payment_status, is_private, green_fee_paise, caddy_fee_paise, convenience_fee_paise, total_paise, refund_paise, cancellation_reason, notes, course_id, golfer_checked_in_at, booking_players!booking_players_booking_id_fkey(seat_number, full_name, phone, email, is_member, is_booker), caddy_assignments!caddy_assignments_booking_id_fkey(id, seat_number, status, checked_in_at, rate_paise, caddies!caddy_assignments_course_id_caddy_id_fkey(full_name, caddy_code))",
     )
     .eq("id", id)
     .eq("course_id", course.id)
@@ -69,7 +69,12 @@ export default async function AdminBookingPage({ params }: { params: Promise<{ i
         title={`${formatTeeTime(b.tee_time)}, ${formatPlayDate(b.play_date, "short")}`}
         detail={`${b.booking_ref} · ${HOLE_FORMAT_LABEL[b.hole_format]}${b.start_hole === 10 ? " from hole 10" : ""}${b.is_private ? ` · blocked ${players.length}-ball` : ""}`}
       >
-        <span className={cn("text-sm", active ? "text-pine" : "text-destructive")}>{b.status.replace("_", " ")}</span>
+        <span className={cn("text-sm", active ? "text-pine" : "text-destructive")}>
+          {b.status.replace("_", " ")}
+          {b.golfer_checked_in_at
+            ? ` · golfers in at ${new Intl.DateTimeFormat("en-IN", { timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(b.golfer_checked_in_at))}`
+            : ""}
+        </span>
       </PageHead>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[3fr_2fr]">

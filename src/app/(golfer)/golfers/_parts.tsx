@@ -21,7 +21,7 @@ export function HandicapChart({ points, label }: { points: { at: string; index: 
     <figure className="border border-alabaster-300 bg-card p-4">
       <figcaption className="flex items-baseline justify-between text-sm">
         <span className="text-ink-muted">{label}</span>
-        <span className="numerals font-display text-3xl text-pine">{last.index.toFixed(1)}</span>
+        <span className="numerals font-sans text-3xl font-bold tracking-tight text-ink">{last.index.toFixed(1)}</span>
       </figcaption>
       <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 h-32 w-full" role="img" aria-label={`${label}: from ${points[0].index.toFixed(1)} to ${last.index.toFixed(1)}`}>
         <path d={path} fill="none" stroke="currentColor" strokeWidth="2" className="text-pine" />

@@ -1,4 +1,4 @@
--- Behavioural checks for Phase 5: check-in pays the caddie, payouts, office caddie assignment.
+-- Behavioural checks: office caddie assignment and two-sided check-in.
 \set ON_ERROR_STOP on
 begin;
 
@@ -69,51 +69,50 @@ exception when others then assert sqlerrm = 'booking_not_found', sqlerrm;
 end $$;
 reset role;
 
--- Check-in on the day pays the caddie once (only testable when the booking is today).
+-- Two-sided check-in (011): caddie and golfer each check in; neither touches the ledger.
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-b000-000000000002', true);
 do $$
 declare v_a uuid := (select v::uuid from t6 where k = 'assignment');
         v_today boolean := (select v::date from t6 where k = 'play_date') = (now() at time zone 'Asia/Kolkata')::date;
-        v_bal bigint;
 begin
-  begin
-    perform public.caddy_set_upi('not a upi');
-    raise exception 'expected invalid_upi_id';
-  exception when others then assert sqlerrm = 'invalid_upi_id', sqlerrm; end;
-  perform public.caddy_set_upi('Caddie.Five@okaxis');
-
   if v_today then
     perform public.caddy_check_in(v_a);
     perform public.caddy_check_in(v_a);  -- second tap is harmless
-    assert (select count(*) from public.caddy_ledger where caddy_assignment_id = v_a) = 1, 'one earning per assignment';
-    select balance_paise into v_bal from public.caddy_balances where caddy_id = (select v::uuid from t6 where k = 'caddy');
-    assert v_bal > 0, 'balance credited';
-    insert into public.caddy_payout_requests (caddy_id, amount_paise, upi_id)
-    values ((select v::uuid from t6 where k = 'caddy'), v_bal, 'ignored@x');
+    assert (select checked_in_at from public.caddy_assignments where id = v_a) is not null, 'caddie checked in';
+    assert not exists (select 1 from public.caddy_ledger where caddy_assignment_id = v_a), 'no ledger entry';
+    assert (select golfer_checked_in_at from public.get_caddy_schedule(current_date - 1, current_date + 1) where assignment_id = v_a) is null,
+      'caddie sees golfer not yet checked in';
+  else
     begin
-      insert into public.caddy_payout_requests (caddy_id, amount_paise, upi_id)
-      values ((select v::uuid from t6 where k = 'caddy'), 100, 'ignored@x');
-      raise exception 'expected one open payout';
-    exception when unique_violation then null; end;
-    insert into t6 values ('balance', v_bal::text);
+      perform public.caddy_check_in(v_a);
+      raise exception 'expected check_in_only_on_the_day';
+    exception when others then assert sqlerrm = 'check_in_only_on_the_day', sqlerrm; end;
   end if;
+  -- A caddie cannot check the golfer in.
+  begin
+    perform public.golfer_check_in((select v::uuid from t6 where k = 'booking'));
+    raise exception 'expected booking_not_found';
+  exception when others then assert sqlerrm = 'booking_not_found', sqlerrm; end;
 end $$;
 reset role;
 
--- Office approves and marks paid; the ledger records the debit.
 set local role authenticated;
-select set_config('request.jwt.claim.sub', '00000000-0000-4000-b000-000000000001', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-b000-000000000003', true);
 do $$
-declare v_p uuid; v_c uuid := (select v::uuid from t6 where k = 'caddy');
+declare v_b uuid := (select v::uuid from t6 where k = 'booking');
+        v_today boolean := (select v::date from t6 where k = 'play_date') = (now() at time zone 'Asia/Kolkata')::date;
 begin
-  select id into v_p from public.caddy_payout_requests where caddy_id = v_c and status = 'requested';
-  if v_p is not null then
-    assert (select upi_id from public.caddy_payout_requests where id = v_p) = 'caddie.five@okaxis', 'UPI comes from the caddie record';
-    update public.caddy_payout_requests set status = 'approved' where id = v_p;
-    update public.caddy_payout_requests set status = 'paid', utr = 'UTR123' where id = v_p;
-    assert (select balance_paise from public.caddy_balances where caddy_id = v_c) = 0, 'paid out to zero';
-    assert exists (select 1 from public.caddy_ledger where payout_request_id = v_p and entry_type = 'payout'), 'debit posted';
+  if v_today then
+    perform public.golfer_check_in(v_b);
+    assert (select status from public.bookings where id = v_b) = 'checked_in', 'booking checked in';
+    assert (select golfer_checked_in_at from public.bookings where id = v_b) is not null, 'golfer time recorded';
+    assert (select checked_in_at from public.get_booking_caddies(v_b) where seat_number = 1 and status <> 'cancelled') is not null, 'golfer sees caddie check-in';
+  else
+    begin
+      perform public.golfer_check_in(v_b);
+      raise exception 'expected check_in_only_on_the_day';
+    exception when others then assert sqlerrm = 'check_in_only_on_the_day', sqlerrm; end;
   end if;
 end $$;
 reset role;

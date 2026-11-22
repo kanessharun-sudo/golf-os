@@ -64,10 +64,10 @@ export default async function GolferProfilePage({ params }: Params) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={profile.avatar_url} alt="" className="size-16 rounded-full border-2 border-alabaster/70 object-cover" />
               ) : null}
-              <h1 className="font-display text-5xl font-medium text-alabaster sm:text-6xl">{profile.full_name}</h1>
+              <h1 className="font-sans text-4xl font-bold tracking-tight text-alabaster sm:text-6xl">{profile.full_name}</h1>
             </div>
             <div className="mt-5 flex items-end gap-3">
-              <span className="numerals font-display text-7xl leading-none sm:text-8xl">{index !== null ? index.toFixed(1) : "–"}</span>
+              <span className="numerals font-sans text-7xl font-bold leading-none tracking-tight sm:text-8xl">{index !== null ? index.toFixed(1) : "–"}</span>
               <span className="pb-2 text-sm leading-tight text-alabaster/80">
                 Handicap
                 <br />
@@ -130,7 +130,7 @@ export default async function GolferProfilePage({ params }: Params) {
 
         <section>
           <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-3xl text-pine">Recent scores</h2>
+            <h2 className="font-sans text-2xl font-bold tracking-tight text-ink">Recent scores</h2>
             <a href="#rounds" className="text-sm text-pine underline-offset-4 hover:underline">
               All rounds ›
             </a>
@@ -146,7 +146,7 @@ export default async function GolferProfilePage({ params }: Params) {
             ].map((s) => (
               <div key={s.label} className="border-b border-r border-alabaster-300 p-4">
                 <dt className="text-xs text-ink-muted">{s.label}</dt>
-                <dd className="mt-1 font-display text-3xl text-pine">{s.value}</dd>
+                <dd className="mt-1 font-sans text-2xl font-bold tracking-tight text-ink">{s.value}</dd>
               </div>
             ))}
           </dl>
@@ -154,7 +154,7 @@ export default async function GolferProfilePage({ params }: Params) {
 
         {history.eighteen_hole.length || history.nine_hole.length ? (
           <section>
-            <h2 className="font-display text-3xl text-pine">Handicap history</h2>
+            <h2 className="font-sans text-2xl font-bold tracking-tight text-ink">Handicap history</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <HandicapChart label="18-hole index" points={history.eighteen_hole} />
               <HandicapChart label="9-hole index" points={history.nine_hole} />
@@ -163,7 +163,7 @@ export default async function GolferProfilePage({ params }: Params) {
         ) : null}
 
         <section>
-          <h2 className="font-display text-3xl text-pine">Photos</h2>
+          <h2 className="font-sans text-2xl font-bold tracking-tight text-ink">Photos</h2>
           <div className="mt-4 space-y-4">
             {isOwner ? <GalleryUpload userId={profile.id} /> : null}
             <GalleryGrid photos={photos} />
@@ -171,7 +171,7 @@ export default async function GolferProfilePage({ params }: Params) {
         </section>
 
         <section id="rounds">
-          <h2 className="font-display text-3xl text-pine">Rounds</h2>
+          <h2 className="font-sans text-2xl font-bold tracking-tight text-ink">Rounds</h2>
           <div className="mt-4">
             <RoundsTable rounds={rounds} />
           </div>

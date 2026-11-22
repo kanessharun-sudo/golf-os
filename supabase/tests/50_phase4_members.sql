@@ -162,7 +162,7 @@ declare v_a uuid := (select v::uuid from t5_state where k = 'assignment');
 begin
   if v_a is not null then
     assert (select b.status from public.bookings b join public.caddy_assignments a on a.booking_id = b.id where a.id = v_a)
-           = 'checked_in', 'booking marked checked in';
+           = 'confirmed', 'caddie check-in leaves the booking to the golfer (011)';
   end if;
 end $$;
 

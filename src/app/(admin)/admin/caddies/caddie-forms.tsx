@@ -1,10 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useActionState, useState, useTransition } from "react";
-import { Button } from "@/components/ui/button";
+import { useActionState } from "react";
 import { Notice } from "@/components/ui/notice";
-import { decidePayoutAction, saveCaddyAction, type AdminActionState } from "@/lib/admin/actions";
+import { saveCaddyAction, type AdminActionState } from "@/lib/admin/actions";
 import { Field, SubmitButton } from "../_ui/form-bits";
 
 export type CaddyFormValues = {
@@ -56,61 +54,5 @@ export function CaddyForm({ courseId, values }: { courseId: string; values: Cadd
         </Notice>
       ) : null}
     </form>
-  );
-}
-
-export function PayoutActions({ payoutId, status }: { payoutId: string; status: "requested" | "approved" }) {
-  const router = useRouter();
-  const [pending, start] = useTransition();
-  const [mode, setMode] = useState<"idle" | "reject" | "paid">("idle");
-  const [text, setText] = useState("");
-  const [error, setError] = useState<string | null>(null);
-
-  function run(decision: "approve" | "reject" | "paid") {
-    start(async () => {
-      const r = await decidePayoutAction({ payoutId, decision, reason: decision === "reject" ? text : undefined, utr: decision === "paid" ? text : undefined });
-      if (r.ok) {
-        setMode("idle");
-        setText("");
-        router.refresh();
-      } else setError(r.message);
-    });
-  }
-
-  if (mode !== "idle") {
-    return (
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={mode === "reject" ? "Reason for the caddie" : "UPI reference (UTR), optional"}
-          className="h-9 w-56 border border-alabaster-300 bg-card px-2 text-sm"
-          maxLength={mode === "reject" ? 300 : 40}
-        />
-        <Button size="sm" variant={mode === "reject" ? "destructive" : "primary"} disabled={pending} onClick={() => run(mode)}>
-          {mode === "reject" ? "Reject" : "Mark paid"}
-        </Button>
-        <Button size="sm" variant="ghost" onClick={() => setMode("idle")}>
-          Back
-        </Button>
-        {error ? <span className="w-full text-right text-xs text-destructive">{error}</span> : null}
-      </div>
-    );
-  }
-  return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
-      {status === "requested" ? (
-        <Button size="sm" variant="outline" disabled={pending} onClick={() => run("approve")}>
-          Approve
-        </Button>
-      ) : null}
-      <Button size="sm" disabled={pending} onClick={() => setMode("paid")}>
-        Mark paid
-      </Button>
-      <Button size="sm" variant="ghost" disabled={pending} onClick={() => setMode("reject")}>
-        Reject
-      </Button>
-      {error ? <span className="w-full text-right text-xs text-destructive">{error}</span> : null}
-    </div>
   );
 }

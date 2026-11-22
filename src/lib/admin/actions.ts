@@ -184,37 +184,3 @@ export async function removeCaddyAction(input: { bookingId: string; assignmentId
   revalidatePath(`/admin/bookings/${input.bookingId}`);
   return { ok: true, message: "Caddie removed." };
 }
-
-const payoutSchema = z.object({
-  payoutId: z.string().uuid(),
-  decision: z.enum(["approve", "reject", "paid"]),
-  reason: z.string().trim().max(300).optional(),
-  utr: z.string().trim().max(40).optional(),
-});
-
-export async function decidePayoutAction(input: z.input<typeof payoutSchema>): Promise<AdminActionState> {
-  const parsed = payoutSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, message: "Something in that request was not valid." };
-  const { payoutId, decision, reason, utr } = parsed.data;
-  if (decision === "reject" && !reason) return { ok: false, message: "Give a reason so the caddie knows why." };
-
-  const supabase = await getSupabaseServerClient();
-  const { data: current } = await supabase.from("caddy_payout_requests").select("status").eq("id", payoutId).maybeSingle();
-  if (!current) return { ok: false, message: "That payout was not found." };
-
-  if (decision === "paid" && current.status === "requested") {
-    // Paying straight from the request approves it first; the trigger records who approved.
-    const { error } = await supabase.from("caddy_payout_requests").update({ status: "approved" }).eq("id", payoutId);
-    if (error) return { ok: false, message: toActionError(error).error };
-  }
-  const update =
-    decision === "approve"
-      ? { status: "approved" as const }
-      : decision === "reject"
-        ? { status: "rejected" as const, rejection_reason: reason }
-        : { status: "paid" as const, utr: utr || null };
-  const { error } = await supabase.from("caddy_payout_requests").update(update).eq("id", payoutId);
-  if (error) return { ok: false, message: toActionError(error).error };
-  revalidatePath("/admin/caddies");
-  return { ok: true, message: decision === "paid" ? "Marked as paid." : decision === "approve" ? "Approved." : "Rejected." };
-}

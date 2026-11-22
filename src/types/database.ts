@@ -743,6 +743,7 @@ export type Database = {
           paid_at: IsoTimestamp | null;
           cancelled_at: IsoTimestamp | null;
           cancellation_reason: string | null;
+          golfer_checked_in_at: IsoTimestamp | null;
           notes: string | null;
           created_at: IsoTimestamp;
           updated_at: IsoTimestamp;
@@ -781,6 +782,7 @@ export type Database = {
           paid_at?: IsoTimestamp | null;
           cancelled_at?: IsoTimestamp | null;
           cancellation_reason?: string | null;
+          golfer_checked_in_at?: IsoTimestamp | null;
           notes?: string | null;
           created_at?: IsoTimestamp;
           updated_at?: IsoTimestamp;
@@ -1639,6 +1641,7 @@ export type Database = {
           photo_url: string | null;
           rate_paise: Paise;
           status: CaddyAssignmentStatus;
+          checked_in_at: IsoTimestamp | null;
         }[];
       };
       cancel_booking: {
@@ -1681,10 +1684,15 @@ export type Database = {
           group_names: string[] | null;
           player_count: number;
           course_name: string;
+          golfer_checked_in_at: IsoTimestamp | null;
         }[];
       };
       caddy_check_in: {
         Args: { p_assignment_id: Uuid };
+        Returns: IsoTimestamp;
+      };
+      golfer_check_in: {
+        Args: { p_booking_id: Uuid };
         Returns: IsoTimestamp;
       };
       seed_demo_tee_sheet: {
