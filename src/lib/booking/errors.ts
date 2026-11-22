@@ -28,6 +28,14 @@ const MESSAGES: Partial<Record<GolfOsDbErrorCode, string>> = {
   booking_not_found: "We could not find that booking.",
   booking_not_cancellable: "This booking can no longer be cancelled.",
   round_already_started: "This round has started, so it cannot be cancelled.",
+  round_not_open_yet: "Scoring opens 60 minutes before your tee time.",
+  round_window_closed: "Scoring for this tee time has closed.",
+  round_not_found: "We could not find that round.",
+  round_already_final: "This round has already been submitted.",
+  round_not_editable: "This round has been submitted, so scores are locked.",
+  booking_not_playable: "This booking cannot be played.",
+  scores_incomplete: "Every player needs a score on every hole before you submit.",
+  hole_outside_round: "That hole is not part of this round.",
 };
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string; code?: string };

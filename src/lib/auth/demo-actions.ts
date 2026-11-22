@@ -35,7 +35,9 @@ export async function signInAsDemoGolferAction(
     email,
     password,
     email_confirm: true,
-    user_metadata: { full_name: "Demo Golfer", username: `demo_${tag}`, is_demo: true },
+    user_metadata: { full_name: "Demo Golfer", username: `demo_${tag}` },
+    // app_metadata is writable only with the service role, so users cannot flag themselves as demo.
+    app_metadata: { is_demo: true },
   });
   if (createError) {
     console.error("demo sign-in: createUser failed", createError.message);

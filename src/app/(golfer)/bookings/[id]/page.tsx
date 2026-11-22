@@ -5,11 +5,12 @@ import { z } from "zod";
 import { Notice } from "@/components/ui/notice";
 import { getSessionContext } from "@/lib/auth/session";
 import { describePolicy, previewRefund } from "@/lib/booking/cancellation";
-import { formatPlayDate } from "@/lib/dates";
+import { courseToday, formatPlayDate } from "@/lib/dates";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { formatPaise, formatTeeTime, HOLE_FORMAT_LABEL } from "@/lib/utils";
 import { StatusBadge } from "../status-badge";
 import { CancelBooking } from "./cancel-booking";
+import { StartRound } from "./start-round";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Booking", robots: { index: false } };
@@ -35,14 +36,23 @@ export default async function BookingPage({
   if (error) throw new Error(`Booking lookup failed: ${error.message}`);
   if (!booking) notFound();
 
-  const [{ data: players }, { data: caddies }] = await Promise.all([
+  const [{ data: players }, { data: caddies }, { data: round }, { data: auth }] = await Promise.all([
     supabase.from("booking_players").select("seat_number, full_name, is_booker").eq("booking_id", id).order("seat_number"),
     supabase.rpc("get_booking_caddies", { p_booking_id: id }),
+    supabase.from("rounds").select("id, status").eq("booking_id", id).maybeSingle(),
+    supabase.auth.getUser(),
   ]);
+
+  // Mirrors start_round: from 60 min before tee time to the end of the tee date; demo accounts any time.
+  const isDemo = auth.user?.app_metadata?.is_demo === true;
+  const opensAt = new Date(new Date(booking.tee_starts_at).getTime() - 60 * 60 * 1000);
+  const windowOpen = Date.now() >= opensAt.getTime() && courseToday(booking.courses.timezone) <= booking.play_date;
+  const playable = booking.status === "confirmed" || booking.status === "checked_in";
 
   const isBooker = booking.booked_by === session.profile.id;
   const policy = booking.courses.cancellation_policy;
-  const canCancel = isBooker && booking.status === "confirmed" && new Date(booking.tee_starts_at).getTime() > Date.now();
+  const canCancel =
+    isBooker && !round && booking.status === "confirmed" && new Date(booking.tee_starts_at).getTime() > Date.now();
   const refund = canCancel ? previewRefund(booking, policy) : null;
   const caddyBySeat = new Map((caddies ?? []).filter((c) => c.status !== "cancelled").map((c) => [c.seat_number, c]));
 
@@ -78,6 +88,52 @@ export default async function BookingPage({
         <p className="mt-1 font-mono text-xl tracking-wider">{booking.booking_ref}</p>
         <p className="mt-1 text-xs text-pine-200">Show this at the starter&apos;s hut 20 minutes before your tee time.</p>
       </div>
+
+      {round ? (
+        <section className="mt-8 rounded-card border border-pine/15 bg-pine-50 p-6">
+          <h2 className="text-eyebrow uppercase text-ink-faint">Scorecard</h2>
+          <p className="mt-2 text-sm text-pine">
+            {round.status === "completed"
+              ? "Round submitted. See the final card and your handicap update."
+              : round.status === "abandoned"
+                ? "This round was abandoned."
+                : "Your round is under way."}
+          </p>
+          <Link
+            href={`/rounds/${round.id}/score`}
+            className="mt-4 inline-flex h-11 items-center rounded-card bg-pine px-5 text-sm font-medium text-alabaster hover:bg-pine-700"
+          >
+            {round.status === "in_progress" || round.status === "scheduled" ? "Continue scoring" : "View scorecard"}
+          </Link>
+        </section>
+      ) : playable ? (
+        <section className="mt-8 rounded-card border border-pine/15 bg-pine-50 p-6">
+          <h2 className="text-eyebrow uppercase text-ink-faint">Live scorecard</h2>
+          {isDemo || windowOpen ? (
+            <>
+              <p className="mt-2 text-sm text-pine">
+                One phone scores the whole group, hole by hole. Handicaps update when you submit.
+                {isDemo && !windowOpen ? " Demo accounts can start before the tee date." : ""}
+              </p>
+              <div className="mt-4">
+                <StartRound bookingId={booking.id} />
+              </div>
+            </>
+          ) : (
+            <p className="mt-2 text-sm text-pine">
+              Scoring opens at{" "}
+              {new Intl.DateTimeFormat("en-IN", {
+                timeZone: booking.courses.timezone,
+                hour: "numeric",
+                minute: "2-digit",
+                day: "numeric",
+                month: "short",
+              }).format(opensAt)}
+              , 60 minutes before your tee time.
+            </p>
+          )}
+        </section>
+      ) : null}
 
       <section className="mt-8 rounded-card bg-card shadow-card">
         <h2 className="border-b border-alabaster-300 px-6 py-4 text-eyebrow uppercase text-ink-faint">Players</h2>

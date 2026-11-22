@@ -154,16 +154,24 @@ begin
 end $$;
 
 -- 4. Live scoring, Net Double Bogey, handicaps, caddy ledger ---------------------
-set local role authenticated;
-select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', true);
+-- Since 006 end users start and submit rounds only through RPCs (tests/40);
+-- here the round is created and completed by the table owner.
 do $$
-declare v_booking uuid; v_round uuid; rp record; h record; v_strokes int;
+declare v_booking uuid; v_round uuid;
 begin
   select id into v_booking from public.bookings where booked_by = '00000000-0000-4000-8000-000000000001';
   insert into public.rounds (booking_id, course_id, hole_format, start_hole)
   values (v_booking, gen_random_uuid(), 'front_9', 10) returning id into v_round;
   assert (select hole_format from public.rounds where id = v_round) = 'full_18', 'round shape mirrors booking';
   assert (select count(*) from public.round_players where round_id = v_round) = 3, 'round players from booking';
+end $$;
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', true);
+do $$
+declare v_round uuid; rp record; h record; v_strokes int;
+begin
+  select id into v_round from public.rounds limit 1;
 
   -- Any participant records every player's card; every hole par + 3 (triple bogey).
   for rp in select id from public.round_players where round_id = v_round loop
@@ -179,10 +187,10 @@ begin
    where round_player_id = (select id from public.round_players where round_id = v_round limit 1);
   assert v_strokes = 72 + 54, 'AGS = par 72 + 54 with no index';
   assert (select status from public.rounds where id = v_round) = 'in_progress', 'first score starts round';
-
-  update public.rounds set status = 'completed' where id = v_round;
 end $$;
 reset role;
+
+update public.rounds set status = 'completed';
 
 do $$
 declare v_round uuid; v_diff numeric;

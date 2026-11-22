@@ -12,7 +12,7 @@ grant usage on schema public, auth, storage, extensions to anon, authenticated, 
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
 alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
-create table auth.users (id uuid primary key, email text, phone text, raw_user_meta_data jsonb,
+create table auth.users (id uuid primary key, email text, phone text, raw_user_meta_data jsonb, raw_app_meta_data jsonb,
   email_confirmed_at timestamptz, phone_confirmed_at timestamptz, created_at timestamptz not null default now());
 create function auth.uid() returns uuid language sql stable as
   $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;

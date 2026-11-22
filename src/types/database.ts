@@ -72,6 +72,10 @@ export type GalleryCategory = "tournament" | "course" | "round" | "social";
 /** Messages raised by RPCs and triggers (PostgrestError.message). */
 export type GolfOsDbErrorCode =
   | "auth_required"
+  | "round_not_open_yet"
+  | "round_window_closed"
+  | "round_not_found"
+  | "scores_incomplete"
   | "course_not_bookable"
   | "back_nine_unavailable"
   | "course_closed_on_date"
@@ -1584,6 +1588,32 @@ export type Database = {
         Args: { p_booking_id: Uuid; p_reason?: string | null };
         Returns: { refund_paise: Paise; booking_status: BookingStatus }[];
       };
+      // ---- Phase 3: live scoring (006) -----------------------------------------
+      start_round: {
+        Args: { p_booking_id: Uuid };
+        Returns: Uuid;
+      };
+      submit_round: {
+        Args: { p_round_id: Uuid; p_abandon?: boolean };
+        Returns: RoundStatus;
+      };
+      get_tournament_leaderboard: {
+        Args: { p_course_id: Uuid; p_play_date: string };
+        Returns: {
+          round_player_id: Uuid;
+          round_id: Uuid;
+          display_name: string;
+          tee_time: string;
+          round_status: RoundStatus;
+          holes_played: number;
+          gross_score: number | null;
+          net_score: number | null;
+          gross_to_par: number;
+          net_to_par: number;
+          is_complete: boolean;
+          rank_position: number | null;
+        }[];
+      };
       // ---- Service-role only (EXECUTE revoked from anon/authenticated) ------
       attach_razorpay_order: {
         Args: { p_hold_id: Uuid; p_order_id: string; p_amount_paise: Paise };
@@ -1754,6 +1784,7 @@ export type PaymentEvent = Tables<"payment_events">;
 export type TeeSheetSlot = RpcReturns<"get_tee_sheet">[number];
 export type HoldCaddy = RpcReturns<"get_hold_caddies">[number];
 export type BookingCaddy = RpcReturns<"get_booking_caddies">[number];
+export type LeaderboardRow = RpcReturns<"get_tournament_leaderboard">[number];
 
 export const Constants = {
   public: {
