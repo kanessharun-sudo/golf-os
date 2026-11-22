@@ -13,7 +13,10 @@ export default async function EditProfilePage() {
   const session = await requireRole(["golfer", "caddy", "course_admin", "super_admin"], "/account/profile");
   const p = session.profile;
   const supabase = await getSupabaseServerClient();
-  const photos = await loadGallery(supabase, p.id, false);
+  const [photos, { data: courses }] = await Promise.all([
+    loadGallery(supabase, p.id, false),
+    supabase.from("courses").select("id, name").eq("is_active", true).order("name"),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-10 px-5 py-10 sm:py-14">
@@ -31,7 +34,8 @@ export default async function EditProfilePage() {
       <AvatarUpload userId={p.id} current={p.avatar_url} initial={p.full_name.slice(0, 1)} />
 
       <ProfileForm
-        values={{ fullName: p.full_name, bio: p.bio ?? "", golfingSince: p.golfing_since ? String(p.golfing_since) : "", isPublic: p.is_profile_public }}
+        values={{ fullName: p.full_name, bio: p.bio ?? "", golfingSince: p.golfing_since ? String(p.golfing_since) : "", isPublic: p.is_profile_public, homeCourseId: p.home_course_id ?? "" }}
+        courses={courses ?? []}
       />
 
       <section className="space-y-4">

@@ -17,9 +17,9 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 const input = "h-11 w-full border border-alabaster-300 bg-card px-3 text-sm outline-none focus:border-pine";
 const MAX_BYTES = 10 * 1024 * 1024;
 
-export type ProfileValues = { fullName: string; bio: string; golfingSince: string; isPublic: boolean };
+export type ProfileValues = { fullName: string; bio: string; golfingSince: string; isPublic: boolean; homeCourseId: string };
 
-export function ProfileForm({ values }: { values: ProfileValues }) {
+export function ProfileForm({ values, courses }: { values: ProfileValues; courses: { id: string; name: string }[] }) {
   const [state, action, pending] = useActionState<ProfileActionState, FormData>(saveProfileAction, { ok: true, message: null });
   return (
     <form action={action} className="space-y-4 border border-alabaster-300 bg-card p-5">
@@ -33,6 +33,17 @@ export function ProfileForm({ values }: { values: ProfileValues }) {
           <input name="golfingSince" inputMode="numeric" defaultValue={values.golfingSince} maxLength={4} className={input} />
         </label>
       </div>
+      <label className="block space-y-1.5">
+        <span className="text-xs text-ink-muted">Home club</span>
+        <select name="homeCourseId" defaultValue={values.homeCourseId} className={input}>
+          <option value="">None</option>
+          {courses.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </label>
       <label className="block space-y-1.5">
         <span className="text-xs text-ink-muted">About you</span>
         <textarea name="bio" defaultValue={values.bio} maxLength={400} rows={3} className="w-full border border-alabaster-300 bg-card p-3 text-sm outline-none focus:border-pine" />

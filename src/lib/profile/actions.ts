@@ -11,6 +11,7 @@ const profileSchema = z.object({
   bio: z.string().trim().max(400),
   golfingSince: z.union([z.literal(""), z.coerce.number().int().min(1940).max(new Date().getFullYear())]),
   isPublic: z.boolean(),
+  homeCourseId: z.union([z.literal(""), z.string().uuid()]),
 });
 
 async function currentUserId() {
@@ -27,6 +28,7 @@ export async function saveProfileAction(_prev: ProfileActionState, formData: For
     bio: formData.get("bio") ?? "",
     golfingSince: formData.get("golfingSince") ?? "",
     isPublic: formData.get("isPublic") === "on",
+    homeCourseId: formData.get("homeCourseId") ?? "",
   });
   if (!parsed.success) return { ok: false, message: "Check your name and the year you started playing." };
   const { supabase, userId } = await currentUserId();
@@ -39,6 +41,7 @@ export async function saveProfileAction(_prev: ProfileActionState, formData: For
       bio: parsed.data.bio || null,
       golfing_since: parsed.data.golfingSince === "" ? null : parsed.data.golfingSince,
       is_profile_public: parsed.data.isPublic,
+      home_course_id: parsed.data.homeCourseId || null,
     })
     .eq("id", userId)
     .select("username")

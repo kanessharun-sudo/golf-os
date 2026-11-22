@@ -15,9 +15,27 @@ export type ProfileRound = {
   net: number | null;
   differential: number | null;
   counted: boolean;
+  /** True when this differential is one of the best N that make up the current index. */
+  inIndex: boolean;
 };
 
-export async function loadRounds(supabase: Client, profileId: string, limit = 20): Promise<ProfileRound[]> {
+/** WHS: how many of the most recent (up to 20) differentials count towards the index. */
+const COUNTING = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8];
+
+/** Marks the lowest differentials among the latest 20 eligible rounds of each track. */
+function markCounting(rounds: ProfileRound[]): ProfileRound[] {
+  for (const nine of [false, true]) {
+    const recent = rounds.filter((r) => r.counted && r.differential !== null && (r.format === "full_18") !== nine).slice(0, 20);
+    const take = COUNTING[recent.length] ?? 0;
+    [...recent]
+      .sort((a, b) => (a.differential ?? 0) - (b.differential ?? 0))
+      .slice(0, take)
+      .forEach((r) => (r.inIndex = true));
+  }
+  return rounds;
+}
+
+export async function loadRounds(supabase: Client, profileId: string, limit = 60): Promise<ProfileRound[]> {
   const { data, error } = await supabase
     .from("round_players")
     .select(
@@ -29,7 +47,7 @@ export async function loadRounds(supabase: Client, profileId: string, limit = 20
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) throw new Error(`Rounds lookup failed: ${error.message}`);
-  return data.map((r) => ({
+  const rows: ProfileRound[] = data.map((r) => ({
     id: r.id,
     date: r.rounds.completed_at ?? "",
     course: r.rounds.courses?.name ?? "",
@@ -39,7 +57,9 @@ export async function loadRounds(supabase: Client, profileId: string, limit = 20
     net: r.net_score,
     differential: r.score_differential,
     counted: r.counts_for_handicap,
+    inIndex: false,
   }));
+  return markCounting(rows.sort((a, b) => b.date.localeCompare(a.date)));
 }
 
 export async function loadHandicapHistory(supabase: Client, profileId: string) {
