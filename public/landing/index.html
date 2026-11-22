@@ -4,32 +4,32 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ASC Centre Golf Course · Tee times and live scoring</title>
-<meta name="theme-color" content="#F7F4EE">
+<meta name="theme-color" content="#F5F1E8">
 <link rel="icon" href="/favicon.ico">
 <meta name="description" content="Book a tee time at ASC Centre Golf Course, Bengaluru. Members play free, guests pay ₹1,000, and every player keeps their own scorecard.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..500&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..500&family=Plus+Jakarta+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Direction: the starter's tee sheet and the printed scorecard, read at dawn.
-   One accent (pine) for actions and selection; brass marks only the hardest holes and the index line. */
+/* Direction: the starter's tee sheet and the printed scorecard, on limestone (see CLAUDE.md).
+   One accent, burnished terracotta, for actions and selected slots. Figures, times and fees in JetBrains Mono. */
 :root {
-  --page: #F7F4EE;
-  --card: #FDFBF7;
-  --raised: #EFE9DF;
-  --ink: #1F1B16;
-  --ink-2: #5E554A;
-  --ink-3: #7B7266;
-  --line: rgba(31, 27, 22, .12);
-  --line-2: rgba(31, 27, 22, .24);
-  --pine: #0B2B1E;
-  --pine-2: #14402D;
-  --brass: #8E6F36;
-  --on-pine: #F3F0E8;
-  --on-pine-2: rgba(243, 240, 232, .72);
-  --on-pine-line: rgba(243, 240, 232, .14);
+  --page: #F5F1E8;
+  --card: #FAF8F3;
+  --raised: #EBE5D8;
+  --ink: #181614;
+  --ink-2: #5C574F;
+  --ink-3: #6E675D;
+  --line: #D6CEBF;
+  --line-2: #C4BAA8;
+  --pine: #B05E36;
+  --pine-2: #974E2C;
+  --brass: #B05E36;
+  --on-pine: #FFFFFF;
+  --on-pine-2: rgba(255, 255, 255, .82);
   --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
-  --sans: "Work Sans", "Helvetica Neue", Arial, sans-serif;
+  --sans: "Plus Jakarta Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", "Plus Jakarta Sans", ui-monospace, monospace;
   --gutter: clamp(16px, 4vw, 48px);
   --max: 1200px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -47,7 +47,7 @@ section { scroll-margin-top: 64px; }
 
 h1, h2, h3 { font-family: var(--serif); font-weight: 500; line-height: 1.1; margin: 0; font-optical-sizing: auto; text-wrap: balance; }
 h1 { font-size: clamp(40px, 5.4vw, 68px); letter-spacing: -0.02em; }
-h2 { font-size: clamp(32px, 3.6vw, 48px); letter-spacing: -0.015em; }
+h2 { font-size: clamp(32px, 3.6vw, 48px); letter-spacing: -0.02em; }
 h3 { font-size: 24px; }
 p { margin: 0; }
 .lede { font-size: 18px; color: var(--ink-2); max-width: 34em; }
@@ -77,7 +77,7 @@ p { margin: 0; }
 .hero .lede { margin-top: 24px; }
 .fees { margin: 32px 0 0; display: grid; grid-template-columns: auto auto; justify-content: start; gap: 8px 32px; font-size: 15px; }
 .fees dt { color: var(--ink-2); }
-.fees dd { margin: 0; font-variant-numeric: tabular-nums; }
+.fees dd { margin: 0; font-family: var(--mono); font-size: 14px; font-variant-numeric: tabular-nums; }
 @media (max-width: 960px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } .hero-text { padding-top: 0; } }
 
 /* Booking panel */
@@ -89,36 +89,36 @@ p { margin: 0; }
 .days button { background: none; border: 1px solid var(--line); border-radius: 4px; padding: 8px 0; cursor: pointer; line-height: 1.25; }
 .days button:hover { border-color: var(--line-2); }
 .days button small { display: block; font-size: 12px; color: var(--ink-3); }
-.days button b { font-weight: 500; font-size: 17px; font-variant-numeric: tabular-nums; }
+.days button b { font-family: var(--mono); font-weight: 500; font-size: 16px; font-variant-numeric: tabular-nums; }
 .days button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--on-pine); }
 .days button[aria-pressed="true"] small { color: var(--on-pine-2); }
 .times { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
-.times button { background: none; border: 1px solid var(--line); border-radius: 4px; height: 36px; cursor: pointer; font-size: 14px; font-variant-numeric: tabular-nums; }
+.times button { background: var(--card); border: 1px solid var(--line); border-radius: 4px; height: 36px; cursor: pointer; font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
 .times button:hover:not(:disabled) { border-color: var(--ink-3); }
 .times button:disabled { color: var(--ink-3); background: var(--raised); border-color: transparent; text-decoration: line-through; cursor: not-allowed; }
 .times button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--on-pine); }
 @media (max-width: 560px) { .times { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .seg { display: inline-grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--raised); border-radius: 6px; }
 .seg button { background: none; border: 0; border-radius: 4px; height: 32px; padding: 0 16px; cursor: pointer; font-size: 14px; color: var(--ink-2); }
-.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(31,27,22,.12); }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(24,22,20,.10); }
 .players { margin: 0; padding: 0; list-style: none; }
 .players li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 8px 0; }
 .players .n { color: var(--ink-3); font-variant-numeric: tabular-nums; font-size: 14px; }
 .players .who { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .players .who b { font-weight: 500; font-size: 15px; }
 .players .who > span { font-size: 13px; color: var(--ink-3); }
-.players .fee { font-variant-numeric: tabular-nums; font-size: 15px; text-align: right; transition: color .3s; }
+.players .fee { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 15px; text-align: right; transition: color .3s; }
 .players .fee.flash { color: var(--brass); }
 .who-tog { background: var(--raised); border: 0; border-radius: 4px; padding: 2px 8px; font-size: 13px; cursor: pointer; color: var(--ink-2); }
 .who-tog:hover { color: var(--ink); }
 .who-tog.mem { background: none; box-shadow: inset 0 0 0 1px var(--line-2); }
 .total { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
-.total .sum { font-size: 28px; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
+.total .sum { font-family: var(--mono); font-size: 28px; font-weight: 500; line-height: 1; font-variant-numeric: tabular-nums; }
 .total .sum-sub { font-size: 13px; color: var(--ink-3); margin-top: 4px; }
 .confirm:empty { display: none; }
 .pass { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 24px; }
 .pass div small { display: block; font-size: 13px; color: var(--ink-3); }
-.pass div b { font-weight: 500; font-size: 17px; }
+.pass div b { font-family: var(--mono); font-weight: 500; font-size: 16px; }
 .pass p { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); }
 .pass a { color: var(--pine); font-weight: 500; }
 @media (max-width: 560px) { .pass { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
@@ -132,7 +132,7 @@ p { margin: 0; }
 .film video { width: 100%; height: 100%; object-fit: cover; }
 .film-cap { margin-top: 8px; }
 .card-wrap { margin-top: 48px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line-2); border-radius: 6px; background: var(--card); }
-table.sc { border-collapse: collapse; width: 100%; min-width: 880px; font-variant-numeric: tabular-nums; font-size: 14px; }
+table.sc { border-collapse: collapse; width: 100%; min-width: 880px; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; }
 /* Row heads in capitals: a printed scorecard does it this way. */
 .sc th[scope="row"] { position: sticky; left: 0; z-index: 1; background: var(--card); text-align: left; font-weight: 500; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); padding: 0 12px; width: 88px; border-right: 1px solid var(--line-2); }
 .sc td { text-align: center; height: 40px; padding: 0 2px; border-left: 1px solid var(--line); cursor: default; }
@@ -146,20 +146,20 @@ table.sc { border-collapse: collapse; width: 100%; min-width: 880px; font-varian
 .hole-line b { color: var(--ink); font-weight: 500; }
 
 /* Score: the round, on the player's phone */
-.score { background: var(--pine); color: var(--on-pine); padding-block: clamp(64px, 9vw, 128px); }
+.score { background: var(--raised); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: clamp(64px, 9vw, 128px); }
 .score-grid { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: clamp(40px, 7vw, 96px); align-items: center; }
-.score .lede { color: var(--on-pine-2); margin-top: 24px; }
+.score .lede { margin-top: 24px; }
 .steps { margin: 32px 0 0; padding: 0; list-style: none; counter-reset: s; max-width: 34em; }
-.steps li { counter-increment: s; display: grid; grid-template-columns: 32px minmax(0, 1fr); padding: 12px 0; border-top: 1px solid var(--on-pine-line); color: var(--on-pine-2); }
-.steps li::before { content: counter(s); font-variant-numeric: tabular-nums; color: var(--on-pine); }
-.steps b { color: var(--on-pine); font-weight: 500; }
-.entry { background: var(--card); color: var(--ink); border-radius: 6px; overflow: hidden; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 32px minmax(0, 1fr); padding: 12px 0; border-top: 1px solid var(--line); color: var(--ink-2); }
+.steps li::before { content: counter(s); font-family: var(--mono); font-size: 14px; color: var(--ink); }
+.steps b { color: var(--ink); font-weight: 500; }
+.entry { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
 .entry-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 20px 24px 16px; }
-.entry-top span { font-size: 13px; color: var(--ink-3); text-align: right; }
+.entry-top span { font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-align: right; }
 .strip { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px 2px; padding: 0 20px 12px; border-bottom: 1px solid var(--line); }
 .strip button { background: none; border: 0; border-radius: 4px; padding: 4px 0; cursor: pointer; line-height: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .strip button small { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-.strip button b { display: grid; place-items: center; width: 24px; height: 24px; font-weight: 500; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.strip button b { font-family: var(--mono); display: grid; place-items: center; width: 24px; height: 24px; font-weight: 500; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .strip button.done b { color: var(--ink); }
 /* Scorecard marks: circle under par, square over par, doubled for two or more. */
 .strip b.birdie { border-radius: 50%; box-shadow: inset 0 0 0 1px var(--ink); }
@@ -180,10 +180,10 @@ table.sc { border-collapse: collapse; width: 100%; min-width: 880px; font-varian
 .step { display: inline-grid; grid-template-columns: 36px 40px 36px; align-items: center; background: var(--raised); border-radius: 6px; padding: 2px; }
 .step button { height: 36px; background: none; border: 0; border-radius: 4px; cursor: pointer; font-size: 18px; color: var(--ink-2); }
 .step button:hover { background: var(--card); color: var(--ink); }
-.step output { text-align: center; font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.step output { text-align: center; font-family: var(--mono); font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .entry-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 24px; border-top: 1px solid var(--line); }
 .entry-foot button { background: none; border: 0; padding: 4px 0; cursor: pointer; font-size: 14px; color: var(--pine); font-weight: 500; }
-.entry-foot .tot { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.entry-foot .tot { font-family: var(--mono); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 @media (max-width: 960px) { .score-grid { grid-template-columns: minmax(0, 1fr); } .score-text { order: -1; } .entry { max-width: 440px; } }
 @media (max-width: 400px) { .entry-top, .entry-body, .entry-foot, .key { padding-left: 16px; padding-right: 16px; } .strip { padding-left: 12px; padding-right: 12px; } }
 
@@ -192,13 +192,13 @@ table.sc { border-collapse: collapse; width: 100%; min-width: 880px; font-varian
 .index-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 64px; align-items: end; }
 .index-head .lede { margin-top: 24px; }
 .big { text-align: right; }
-.big b { display: block; font-family: var(--serif); font-weight: 400; font-size: clamp(72px, 9vw, 120px); line-height: .9; font-variant-numeric: tabular-nums; transition: color .4s; }
+.big b { display: block; font-family: var(--mono); font-weight: 400; letter-spacing: -0.06em; font-size: clamp(60px, 7vw, 92px); line-height: .9; font-variant-numeric: tabular-nums; transition: color .4s; }
 .big b.flash { color: var(--brass); }
 .big span { display: block; margin-top: 8px; font-size: 14px; color: var(--ink-2); }
 @media (max-width: 760px) { .index-head { grid-template-columns: minmax(0, 1fr); } .big { text-align: left; } }
 .chart-box { margin-top: 48px; }
 .chart { width: 100%; height: auto; }
-.chart text { font-family: var(--sans); font-size: 11px; fill: var(--ink-3); }
+.chart text { font-family: var(--mono); font-size: 11px; fill: var(--ink-3); }
 .chart circle { cursor: pointer; transition: r .15s var(--ease); }
 .chart circle:hover, .chart circle.sel { r: 7; }
 .below { margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 64px; align-items: start; }
@@ -207,7 +207,7 @@ table.sc { border-collapse: collapse; width: 100%; min-width: 880px; font-varian
 .readout { margin-top: 8px; min-height: 1.6em; font-size: 14px; color: var(--ink-2); }
 .post { background: var(--card); border: 1px solid var(--line-2); border-radius: 6px; padding: 20px 24px; }
 .post label { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; color: var(--ink-2); }
-.post label b { font-weight: 500; font-size: 17px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.post label b { font-family: var(--mono); font-weight: 500; font-size: 17px; color: var(--ink); font-variant-numeric: tabular-nums; }
 .post input[type=range] { width: 100%; margin: 12px 0; accent-color: var(--pine); }
 .post-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
 .post-row span { font-size: 14px; color: var(--ink-2); }
@@ -226,12 +226,12 @@ table.sc { border-collapse: collapse; width: 100%; min-width: 880px; font-varian
 .faq details p { padding: 0 0 20px; color: var(--ink-2); max-width: 60ch; }
 .faq .after { margin-top: 32px; }
 
-footer { background: var(--pine); color: var(--on-pine-2); padding-block: 40px calc(40px + env(safe-area-inset-bottom, 0px)); font-size: 14px; }
+footer { background: var(--raised); border-top: 1px solid var(--line); color: var(--ink-2); padding-block: 40px calc(40px + env(safe-area-inset-bottom, 0px)); font-size: 14px; }
 .foot { display: flex; justify-content: space-between; align-items: baseline; gap: 16px 32px; flex-wrap: wrap; }
-.foot b { font-family: var(--serif); font-weight: 500; font-size: 18px; color: var(--on-pine); }
+.foot b { font-family: var(--serif); font-weight: 500; font-size: 18px; color: var(--ink); }
 .foot nav { display: flex; gap: 24px; flex-wrap: wrap; }
 .foot a { text-decoration: none; }
-.foot a:hover { color: var(--on-pine); }
+.foot a:hover { color: var(--ink); }
 .foot-base { margin-top: 24px; font-size: 13px; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -360,7 +360,7 @@ footer { background: var(--pine); color: var(--on-pine-2); padding-block: 40px c
       </div>
       <div class="below">
         <div>
-          <div class="legend"><span><i style="background:var(--pine)"></i>Counts towards the index</span><span><i style="box-shadow:inset 0 0 0 1px var(--ink-3)"></i>Other recent rounds</span></div>
+          <div class="legend"><span><i style="background:var(--ink)"></i>Counts towards the index</span><span><i style="box-shadow:inset 0 0 0 1px var(--ink-3)"></i>Other recent rounds</span></div>
           <p class="readout" id="readout" aria-live="polite">Tap or hover a round to see it.</p>
           <p class="cap">Example figures, using a course rating of 70.5 and slope of 125.</p>
         </div>
@@ -576,11 +576,11 @@ footer { background: var(--pine); color: var(--on-pine-2); padding-block: 40px c
     const x = (i) => L + 8 + (i * (W - L - R - 16)) / (DIFFS.length - 1);
     const y = (v) => T + ((hi - v) * (H - T - B)) / (hi - lo);
     let svg = "";
-    for (let v = lo; v <= hi; v += 3) svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(31,27,22,.08)"/><text x="0" y="${y(v) + 4}">${v}</text>`;
-    svg += `<line x1="${L}" x2="${W - R}" y1="${y(idx)}" y2="${y(idx)}" stroke="#8E6F36" stroke-width="1.5"/><text x="${L + 8}" y="${y(idx) - 8}" style="fill:#8E6F36">Index ${idx.toFixed(1)}</text>`;
+    for (let v = lo; v <= hi; v += 3) svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#E4DDD0"/><text x="0" y="${y(v) + 4}">${v}</text>`;
+    svg += `<line x1="${L}" x2="${W - R}" y1="${y(idx)}" y2="${y(idx)}" stroke="#B05E36" stroke-width="1.5"/><text x="${L + 8}" y="${y(idx) - 8}" style="fill:#B05E36">Index ${idx.toFixed(1)}</text>`;
     svg += DIFFS.map((d, i) => {
       const attrs = `data-i="${i}" tabindex="0" role="button" aria-label="Round ${i + 1}, differential ${d}${counted.has(i) ? ", counts" : ""}"`;
-      return counted.has(i) ? `<circle ${attrs} cx="${x(i)}" cy="${y(d)}" r="5" fill="#0B2B1E"/>` : `<circle ${attrs} cx="${x(i)}" cy="${y(d)}" r="4.5" fill="#F7F4EE" stroke="#7B7266"/>`;
+      return counted.has(i) ? `<circle ${attrs} cx="${x(i)}" cy="${y(d)}" r="5" fill="#181614"/>` : `<circle ${attrs} cx="${x(i)}" cy="${y(d)}" r="4.5" fill="#F5F1E8" stroke="#6E675D"/>`;
     }).join("");
     svg += `<text x="${L}" y="${H - 6}">20 rounds ago</text><text x="${W - R}" y="${H - 6}" text-anchor="end">Latest round</text>`;
     $("chart").innerHTML = svg;

@@ -91,7 +91,7 @@ export default async function GolferProfilePage({ params }: Params) {
               </div>
             </dl>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/courses/asc-centre-bengaluru/book" className="inline-flex h-11 items-center bg-brass px-5 text-sm font-medium text-pine-900 hover:bg-brass-400">
+              <Link href="/courses/asc-centre-bengaluru/book" className="inline-flex h-11 items-center bg-brass px-5 text-sm font-medium text-white hover:bg-brass-600">
                 Book a round
               </Link>
               {isOwner ? (

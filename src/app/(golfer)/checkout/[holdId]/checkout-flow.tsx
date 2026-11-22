@@ -254,7 +254,7 @@ export function CheckoutFlow(props: Props) {
       description: order.description,
       prefill: order.prefill,
       notes: { hold_id: hold.id },
-      theme: { color: "#0B2B1E" },
+      theme: { color: "#B05E36" },
       handler: (response) => void confirmPayment(response),
       modal: { ondismiss: () => setBusy(null), confirm_close: true },
     });
@@ -391,7 +391,7 @@ export function CheckoutFlow(props: Props) {
               <span
                 className={cn(
                   "grid size-7 place-items-center rounded-full border text-xs",
-                  s.id === step ? "border-pine bg-pine text-alabaster" : done ? "border-brass bg-brass text-pine" : "border-alabaster-400 text-ink-faint",
+                  s.id === step ? "border-brass bg-brass text-white" : done ? "border-pine bg-pine text-alabaster" : "border-alabaster-400 text-ink-faint",
                 )}
               >
                 {done ? <Check className="size-3.5" /> : i + 1}

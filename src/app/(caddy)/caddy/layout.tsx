@@ -6,15 +6,15 @@ export default async function CaddyLayout({ children }: Readonly<{ children: Rea
 
   return (
     <div className="flex min-h-dvh flex-col bg-alabaster-100">
-      <header className="sticky top-0 z-30 bg-pine text-alabaster">
+      <header className="sticky top-0 z-30 border-b border-alabaster-300 bg-alabaster-100/95 text-pine backdrop-blur">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-5">
-          <Link href="/caddy" className="font-sans text-lg font-bold tracking-tight text-alabaster">
-            Golf OS <span className="font-normal text-alabaster/60">Caddie desk</span>
+          <Link href="/caddy" className="font-sans text-lg font-bold tracking-tight text-pine">
+            Golf OS <span className="font-normal text-ink-muted">Caddie desk</span>
           </Link>
           <div className="flex items-center gap-4 text-sm">
-            <span className="numerals rounded-full bg-alabaster/10 px-2.5 py-1 text-xs">{session.caddy?.caddy_code ?? "Not linked"}</span>
+            <span className="numerals rounded-full bg-alabaster-200 px-2.5 py-1 text-xs">{session.caddy?.caddy_code ?? "Not linked"}</span>
             <form action="/auth/signout" method="post">
-              <button type="submit" className="text-alabaster/75 hover:text-alabaster">
+              <button type="submit" className="text-ink-muted hover:text-pine">
                 Sign out
               </button>
             </form>

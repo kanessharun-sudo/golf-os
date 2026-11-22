@@ -43,7 +43,7 @@ export default async function AdminBookingsPage({ searchParams }: { searchParams
             placeholder="Name, mobile or ref"
             className="h-10 w-56 border border-alabaster-300 bg-card px-3 outline-none focus:border-pine"
           />
-          <button className="h-10 border border-pine bg-pine px-4 text-alabaster" type="submit">
+          <button className="h-10 border border-brass bg-brass px-4 text-white" type="submit">
             Search
           </button>
         </form>

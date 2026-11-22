@@ -462,7 +462,7 @@ function HoleStrip({
                 className={cn(
                   "numerals flex size-10 items-center justify-center rounded-full border text-sm transition-colors",
                   i === current
-                    ? "border-pine bg-pine text-alabaster"
+                    ? "border-brass bg-brass text-white"
                     : done
                       ? "border-pine/30 bg-pine-50 text-pine"
                       : "border-alabaster-300 bg-card text-ink-muted",
@@ -534,7 +534,7 @@ function PlayerRow({
           >
             {strokes}
             {capped !== null && capped < strokes ? (
-              <span className="absolute -right-1 -top-1 rounded-full bg-brass px-1.5 text-[10px] font-sans text-pine-900" title="Capped for handicap">
+              <span className="absolute -right-1 -top-1 rounded-full bg-brass px-1.5 text-[10px] font-sans text-white" title="Capped for handicap">
                 {capped}
               </span>
             ) : null}
@@ -555,8 +555,8 @@ function PlayerRow({
 }
 
 function scoreTone(toPar: number): string {
-  if (toPar <= -2) return "bg-brass text-pine-900";
-  if (toPar === -1) return "bg-pine text-alabaster";
+  if (toPar <= -2) return "bg-brass-700 text-white";
+  if (toPar === -1) return "bg-brass text-white";
   if (toPar === 0) return "bg-pine-50 text-pine";
   if (toPar === 1) return "bg-alabaster-200 text-ink";
   return "bg-alabaster-300 text-ink";

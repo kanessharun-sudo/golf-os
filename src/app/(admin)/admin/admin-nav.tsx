@@ -26,7 +26,7 @@ export function AdminNav() {
             aria-current={active ? "page" : undefined}
             className={cn(
               "shrink-0 border-b-2 px-3 py-2.5 transition-colors",
-              active ? "border-brass text-alabaster" : "border-transparent text-alabaster/65 hover:text-alabaster",
+              active ? "border-brass text-pine" : "border-transparent text-ink-muted hover:text-pine",
             )}
           >
             {link.label}

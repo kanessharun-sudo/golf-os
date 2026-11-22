@@ -22,7 +22,7 @@ export function GolferCheckIn({ bookingId }: { bookingId: string }) {
             else setError(r.error);
           })
         }
-        className="inline-flex h-12 items-center gap-2 bg-brass px-6 text-sm font-semibold text-pine-900 hover:bg-brass-400 disabled:opacity-60"
+        className="inline-flex h-12 items-center gap-2 bg-brass px-6 text-sm font-semibold text-white hover:bg-brass-600 disabled:opacity-60"
       >
         {pending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
         Check in at the club

@@ -149,7 +149,7 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
               onClick={() => navigate({ date: d.date })}
               className={cn(
                 "numerals flex w-16 shrink-0 flex-col items-center rounded-card border py-2.5 transition-colors",
-                active ? "border-pine bg-pine text-alabaster" : "border-alabaster-300 bg-card text-pine hover:border-pine/40",
+                active ? "border-brass bg-brass text-white" : "border-alabaster-300 bg-card text-pine hover:border-pine/40",
                 d.closed && "cursor-not-allowed border-dashed bg-transparent text-ink-faint",
               )}
             >

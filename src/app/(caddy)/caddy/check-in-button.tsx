@@ -22,7 +22,7 @@ export function CheckInButton({ assignmentId }: { assignmentId: string }) {
             else setError(result.error);
           })
         }
-        className="flex h-11 items-center gap-2 bg-brass px-5 text-sm font-medium text-pine-900 transition-colors hover:bg-brass-400 disabled:opacity-60"
+        className="flex h-11 items-center gap-2 bg-brass px-5 text-sm font-medium text-white transition-colors hover:bg-brass-600 disabled:opacity-60"
       >
         {pending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
         Check in

@@ -60,7 +60,7 @@ export function SettingsForm({ values }: { values: SettingsValues }) {
           <p className="text-xs text-ink-muted">Closed on</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {DAYS.map((day, i) => (
-              <label key={day} className="flex cursor-pointer items-center gap-2 border border-alabaster-300 px-3 py-2 text-sm has-[:checked]:border-pine has-[:checked]:bg-pine has-[:checked]:text-alabaster">
+              <label key={day} className="flex cursor-pointer items-center gap-2 border border-alabaster-300 px-3 py-2 text-sm has-[:checked]:border-brass has-[:checked]:bg-brass has-[:checked]:text-white">
                 <input type="checkbox" name="closed" value={i + 1} defaultChecked={values.closed.includes(i + 1)} className="sr-only" />
                 {day}
               </label>

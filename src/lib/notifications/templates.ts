@@ -56,11 +56,11 @@ export function renderEmail(template: BookingTemplate, ctx: BookingMessageContex
     ? "Your tee time is booked. Please reach the starter's hut 20 minutes before your tee time."
     : "Your booking has been cancelled.";
 
-  const html = `<!doctype html><html><body style="margin:0;background:#F7F5F0;font-family:Inter,Arial,sans-serif;color:#1A1F1C">
+  const html = `<!doctype html><html><body style="margin:0;background:#F5F1E8;font-family:Helvetica,Arial,sans-serif;color:#181614">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px"><tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FDFCFA;border-radius:6px;overflow:hidden">
-<tr><td style="background:#0B2B1E;padding:28px 32px;color:#F7F5F0">
-<div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#C5A059">${escapeHtml(p.course)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FAF8F3;border-radius:6px;overflow:hidden">
+<tr><td style="background:#EBE5D8;padding:28px 32px;color:#181614">
+<div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#B05E36">${escapeHtml(p.course)}</div>
 <div style="font-family:Georgia,serif;font-size:28px;margin-top:8px">${confirmed ? "Tee time confirmed" : "Booking cancelled"}</div>
 </td></tr>
 <tr><td style="padding:28px 32px">
@@ -69,11 +69,11 @@ export function renderEmail(template: BookingTemplate, ctx: BookingMessageContex
 ${rows
   .map(
     ([k, v]) =>
-      `<tr><td style="padding:8px 0;border-bottom:1px solid #E2DCCF;color:#5B625D;width:110px">${escapeHtml(k)}</td><td style="padding:8px 0;border-bottom:1px solid #E2DCCF;color:#0B2B1E">${escapeHtml(v)}</td></tr>`,
+      `<tr><td style="padding:8px 0;border-bottom:1px solid #D6CEBF;color:#5C574F;width:110px">${escapeHtml(k)}</td><td style="padding:8px 0;border-bottom:1px solid #D6CEBF;color:#181614">${escapeHtml(v)}</td></tr>`,
   )
   .join("")}
 </table>
-<p style="margin:28px 0 0"><a href="${escapeHtml(p.link)}" style="display:inline-block;background:#0B2B1E;color:#F7F5F0;text-decoration:none;padding:12px 22px;border-radius:6px;font-size:14px">View booking</a></p>
+<p style="margin:28px 0 0"><a href="${escapeHtml(p.link)}" style="display:inline-block;background:#B05E36;color:#FFFFFF;text-decoration:none;padding:12px 22px;border-radius:6px;font-size:14px">View booking</a></p>
 </td></tr></table></td></tr></table></body></html>`;
 
   const text = [subject, "", lead, "", ...rows.map(([k, v]) => `${k}: ${v}`), "", p.link].join("\n");

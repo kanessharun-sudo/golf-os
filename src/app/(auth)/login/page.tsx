@@ -29,8 +29,8 @@ export default async function LoginPage({
   return (
     <div className="w-full max-w-md">
       <p className="text-eyebrow uppercase text-brass">Members&apos; entrance</p>
-      <h1 className="mt-3 font-display text-display-sm text-alabaster">Sign in to book</h1>
-      <p className="mt-3 text-sm text-pine-200">
+      <h1 className="mt-3 font-display text-display-sm text-pine">Sign in to book</h1>
+      <p className="mt-3 text-sm text-ink-muted">
         New here? Signing in creates your Golf OS account, with your handicap and rounds in one place.
       </p>
       <div className="mt-8 rounded-card bg-alabaster-50 p-6 text-ink shadow-card sm:p-8">

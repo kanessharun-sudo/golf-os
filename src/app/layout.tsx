@@ -1,16 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Inter, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Newsreader, Plus_Jakarta_Sans } from "next/font/google";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 import "./globals.css";
 
-const display = Cormorant_Garamond({
+const display = Newsreader({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
-const sans = Inter({
+const sans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B2B1E",
+  themeColor: "#F5F1E8",
   width: "device-width",
   initialScale: 1,
 };

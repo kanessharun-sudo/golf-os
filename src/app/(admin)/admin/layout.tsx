@@ -7,15 +7,15 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
 
   return (
     <div className="min-h-dvh bg-alabaster-100">
-      <header className="border-b border-pine-700 bg-pine text-alabaster">
+      <header className="border-b border-alabaster-300 bg-alabaster-50 text-pine">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-3">
-          <Link href="/admin" className="font-display text-xl text-alabaster">
-            Golf<span className="text-brass">·</span>OS <span className="text-alabaster/60">Club office</span>
+          <Link href="/admin" className="font-display text-xl text-pine">
+            Golf<span className="text-brass">·</span>OS <span className="text-ink-muted">Club office</span>
           </Link>
           <div className="flex items-center gap-5 text-sm">
-            <span className="hidden text-alabaster/70 sm:inline">{session.profile.full_name}</span>
+            <span className="hidden text-ink-muted sm:inline">{session.profile.full_name}</span>
             <form action="/auth/signout" method="post">
-              <button type="submit" className="text-alabaster/70 hover:text-alabaster">
+              <button type="submit" className="text-ink-muted hover:text-pine">
                 Sign out
               </button>
             </form>

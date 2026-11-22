@@ -7,11 +7,11 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-pine text-alabaster hover:bg-pine-700",
-        brass: "bg-brass text-pine-900 hover:bg-brass-400",
-        outline: "border border-pine/20 bg-transparent text-pine hover:border-pine/40 hover:bg-pine-50",
-        ghost: "bg-transparent text-pine hover:bg-pine-50",
-        destructive: "bg-destructive text-alabaster hover:opacity-90",
+        primary: "bg-brass text-white hover:bg-brass-600",
+        brass: "bg-brass text-white hover:bg-brass-600",
+        outline: "border border-alabaster-300 bg-alabaster-50 text-pine hover:border-pine/40",
+        ghost: "bg-transparent text-pine hover:bg-alabaster-200",
+        destructive: "bg-destructive text-white hover:opacity-90",
       },
       size: {
         sm: "h-9 px-3",
