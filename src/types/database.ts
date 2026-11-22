@@ -77,6 +77,14 @@ export type GalleryCategory = "tournament" | "course" | "round" | "social";
 export type GolfOsDbErrorCode =
   | "auth_required"
   | "payment_required"
+  | "seat_has_caddy"
+  | "caddy_already_checked_in"
+  | "invalid_upi_id"
+  | "caddy_upi_missing"
+  | "payout_exceeds_balance"
+  | "invalid_payout_transition"
+  | "rejection_reason_required"
+  | "insufficient_caddy_balance"
   | "free_confirm_failed"
   | "assignment_not_found"
   | "check_in_only_on_the_day"
@@ -1682,6 +1690,19 @@ export type Database = {
       seed_demo_tee_sheet: {
         Args: { p_course_id: Uuid; p_booker: Uuid; p_days?: number };
         Returns: number;
+      };
+      // ---- Phase 5: office controls, caddie pay (009) ---------------------------
+      admin_assign_caddy: {
+        Args: { p_booking_id: Uuid; p_caddy_id: Uuid; p_seat_number: number };
+        Returns: Uuid;
+      };
+      admin_remove_caddy: {
+        Args: { p_assignment_id: Uuid };
+        Returns: undefined;
+      };
+      caddy_set_upi: {
+        Args: { p_upi_id: string };
+        Returns: undefined;
       };
       // ---- Phase 3: live scoring (006) -----------------------------------------
       start_round: {

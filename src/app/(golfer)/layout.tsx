@@ -27,6 +27,9 @@ export default async function GolferLayout({ children }: Readonly<{ children: Re
                 <Link href="/bookings" className="text-ink-muted transition-colors hover:text-pine">
                   My bookings
                 </Link>
+                <Link href={`/golfers/${session.profile.username}`} className="text-ink-muted transition-colors hover:text-pine">
+                  Profile
+                </Link>
                 <form action="/auth/signout" method="post">
                   <button type="submit" className="text-ink-faint transition-colors hover:text-pine">
                     Sign out

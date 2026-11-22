@@ -12,7 +12,11 @@ const nextConfig: NextConfig = {
     return { beforeFiles: [{ source: "/", destination: "/landing/index.html" }], afterFiles: [], fallback: [] };
   },
   async headers() {
-    return [{ source: "/landing/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }] }];
+    return [
+      { source: "/landing/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }] },
+      // The worker must be re-checked on every visit so fixes reach installed phones.
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache" }, { key: "Service-Worker-Allowed", value: "/" }] },
+    ];
   },
   images: {
     formats: ["image/avif", "image/webp"],

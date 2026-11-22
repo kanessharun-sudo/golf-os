@@ -41,6 +41,14 @@ const MESSAGES: Partial<Record<GolfOsDbErrorCode, string>> = {
   assignment_not_found: "We could not find that group on your schedule.",
   check_in_only_on_the_day: "Check-in opens on the day of the round.",
   booking_not_active: "This booking is no longer active.",
+  seat_has_caddy: "That player already has a caddie.",
+  caddy_already_checked_in: "The caddie has already checked in, so they cannot be removed.",
+  invalid_upi_id: "That UPI ID does not look right. It should look like name@bank.",
+  caddy_upi_missing: "Add your UPI ID before asking for a payout.",
+  payout_exceeds_balance: "That is more than your balance.",
+  invalid_payout_transition: "This payout has already moved on.",
+  rejection_reason_required: "Give a reason for rejecting the payout.",
+  insufficient_caddy_balance: "The balance is too low for that.",
 };
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string; code?: string };

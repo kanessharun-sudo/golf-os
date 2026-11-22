@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getSessionContext } from "@/lib/auth/session";
 import { addDays, courseToday, formatPlayDate } from "@/lib/dates";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -47,6 +48,9 @@ export default async function CaddyHomePage() {
           ))}
         </dl>
         <p className="mt-2 text-xs text-alabaster/50">{formatPaise(booked)} booked across today and the next two weeks.</p>
+        <Link href="/caddy/pay" className="mt-4 inline-flex h-11 items-center bg-brass px-5 text-sm font-medium text-pine-900 hover:bg-brass-400">
+          My pay and payouts
+        </Link>
       </section>
 
       <section>

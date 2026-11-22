@@ -4,14 +4,17 @@ import { addDays, courseToday, formatPlayDate } from "@/lib/dates";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { formatPaise, formatTeeTime } from "@/lib/utils";
 import type { Uuid } from "@/types/database";
+import Link from "next/link";
 import { PageHead, Stats } from "../_ui/parts";
+import { CaddyForm, PayoutActions, type CaddyFormValues } from "./caddie-forms";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Caddies · Club office" };
 
 const GRADE: Record<string, string> = { grade_a: "Grade A", grade_b: "Grade B", grade_c: "Grade C" };
 
-export default async function AdminCaddiesPage() {
+export default async function AdminCaddiesPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
+  const { edit } = await searchParams;
   const course = await requireAdminCourse("/admin/caddies");
   const today = courseToday(course.timezone);
   const supabase = await getSupabaseServerClient();
@@ -19,7 +22,7 @@ export default async function AdminCaddiesPage() {
   const [{ data: caddies, error }, { data: assignments, error: aError }] = await Promise.all([
     supabase
       .from("caddies")
-      .select("id, caddy_code, full_name, grade, daily_rate_18_paise, rating, is_available, is_active, profile_id")
+      .select("id, caddy_code, full_name, phone, grade, daily_rate_18_paise, daily_rate_9_paise, rating, is_available, is_active, profile_id, upi_id")
       .eq("course_id", course.id)
       .order("caddy_code"),
     supabase
@@ -31,6 +34,37 @@ export default async function AdminCaddiesPage() {
       .lte("bookings.play_date", addDays(today, 7)),
   ]);
   if (error) throw new Error(`Caddies lookup failed: ${error.message}`);
+  const [{ data: payouts, error: pError }, { data: balances }] = await Promise.all([
+    supabase
+      .from("caddy_payout_requests")
+      .select("id, caddy_id, amount_paise, upi_id, status, rejection_reason, utr, created_at, paid_at")
+      .eq("course_id", course.id)
+      .order("created_at", { ascending: false })
+      .limit(40),
+    supabase.from("caddy_balances").select("caddy_id, balance_paise").eq("course_id", course.id),
+  ]);
+  if (pError) throw new Error(`Payouts lookup failed: ${pError.message}`);
+  const balanceOf = new Map((balances ?? []).map((b) => [b.caddy_id, b.balance_paise]));
+  const nameOf = new Map(caddies.map((c) => [c.id, `${c.full_name} · ${c.caddy_code}`]));
+  const open = payouts.filter((p) => p.status === "requested" || p.status === "approved");
+  const recent = payouts.filter((p) => !(p.status === "requested" || p.status === "approved")).slice(0, 10);
+
+  const editing = edit === "new" ? null : caddies.find((c) => c.id === edit);
+  const formValues: CaddyFormValues | null =
+    edit === "new"
+      ? { caddyId: null, fullName: "", caddyCode: "", phone: "", grade: "grade_b", rate18: 600, rate9: 400, isActive: true }
+      : editing
+        ? {
+            caddyId: editing.id,
+            fullName: editing.full_name,
+            caddyCode: editing.caddy_code,
+            phone: editing.phone ?? "",
+            grade: editing.grade,
+            rate18: editing.daily_rate_18_paise / 100,
+            rate9: editing.daily_rate_9_paise / 100,
+            isActive: editing.is_active,
+          }
+        : null;
   if (aError) throw new Error(`Assignments lookup failed: ${aError.message}`);
 
   const byCaddy = new Map<Uuid, { today: { time: string; in: boolean }[]; week: number; earned: number }>();
@@ -47,7 +81,12 @@ export default async function AdminCaddiesPage() {
 
   return (
     <>
-      <PageHead title="Caddies" detail={`${caddies.length} caddies · ${formatPlayDate(today)}`} />
+      <PageHead title="Caddies" detail={`${caddies.length} caddies · ${formatPlayDate(today)}`}>
+        <Link href="/admin/caddies?edit=new" className="text-sm text-pine underline-offset-4 hover:underline">
+          Add a caddie
+        </Link>
+      </PageHead>
+      {formValues ? <CaddyForm key={edit} courseId={course.id} values={formValues} /> : null}
       <Stats
         items={[
           { label: "Out today", value: String(all.reduce((n, r) => n + r.today.length, 0)) },
@@ -65,7 +104,9 @@ export default async function AdminCaddiesPage() {
               <th className="px-4 py-3 font-normal">Today</th>
               <th className="px-4 py-3 text-right font-normal">Next 7 days</th>
               <th className="px-4 py-3 text-right font-normal">Earned, 30 days</th>
+              <th className="px-4 py-3 text-right font-normal">Balance</th>
               <th className="px-4 py-3 font-normal">App</th>
+              <th className="px-4 py-3 font-normal" />
             </tr>
           </thead>
           <tbody>
@@ -93,13 +134,63 @@ export default async function AdminCaddiesPage() {
                   </td>
                   <td className="numerals px-4 py-3 text-right">{r?.week ?? 0}</td>
                   <td className="numerals px-4 py-3 text-right">{formatPaise(r?.earned ?? 0)}</td>
+                  <td className="numerals px-4 py-3 text-right">{formatPaise(balanceOf.get(c.id) ?? 0)}</td>
                   <td className="px-4 py-3 text-ink-muted">{c.profile_id ? "Signed in" : "Not set up"}</td>
+                  <td className="px-4 py-3 text-right">
+                    <Link href={`/admin/caddies?edit=${c.id}`} className="text-xs text-pine underline-offset-4 hover:underline">
+                      Edit
+                    </Link>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
+
+      <section className="mt-10">
+        <h2 className="font-display text-3xl text-pine">Payout requests</h2>
+        <p className="mt-1 text-sm text-ink-muted">Caddies ask for their balance from the caddie desk. Pay by UPI, then mark it paid here.</p>
+        <div className="mt-4 border border-alabaster-300 bg-card">
+          {open.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-ink-muted">No requests waiting.</p>
+          ) : (
+            <ul>
+              {open.map((p) => (
+                <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-alabaster-200 px-5 py-4 last:border-0">
+                  <div>
+                    <p>
+                      {nameOf.get(p.caddy_id) ?? "Caddie"} <span className="numerals ml-2 font-display text-xl text-pine">{formatPaise(p.amount_paise)}</span>
+                    </p>
+                    <p className="numerals text-xs text-ink-muted">
+                      UPI {p.upi_id} · asked {formatPlayDate(p.created_at.slice(0, 10), "short")} · {p.status}
+                    </p>
+                  </div>
+                  <PayoutActions payoutId={p.id} status={p.status as "requested" | "approved"} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {recent.length ? (
+          <table className="mt-4 w-full text-left text-sm">
+            <tbody>
+              {recent.map((p) => (
+                <tr key={p.id} className="border-b border-alabaster-200 text-ink-muted">
+                  <td className="py-2">{nameOf.get(p.caddy_id)}</td>
+                  <td className="numerals py-2">{formatPaise(p.amount_paise)}</td>
+                  <td className="py-2">
+                    {p.status}
+                    {p.utr ? ` · UTR ${p.utr}` : ""}
+                    {p.rejection_reason ? ` · ${p.rejection_reason}` : ""}
+                  </td>
+                  <td className="numerals py-2 text-right">{formatPlayDate((p.paid_at ?? p.created_at).slice(0, 10), "short")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : null}
+      </section>
     </>
   );
 }

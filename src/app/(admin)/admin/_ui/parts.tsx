@@ -76,7 +76,9 @@ export function BookingTable({ bookings, showDate = false }: { bookings: AdminBo
                   {b.startHole === 10 ? " · hole 10" : ""}
                   {b.isPrivate ? ` · ${b.players.length}-ball` : ""}
                 </span>
-                <span className="numerals block text-xs text-ink-faint">{b.ref}</span>
+                <Link href={`/admin/bookings/${b.id}`} className="numerals block text-xs text-pine underline-offset-4 hover:underline">
+                  {b.ref}
+                </Link>
               </td>
               <td className="px-4 py-3">
                 <ul className="space-y-0.5">
