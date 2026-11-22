@@ -1,92 +1,67 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Lock, Minus, Plus, Users } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { Notice } from "@/components/ui/notice";
 import { acquireHoldAction } from "@/lib/booking/actions";
-import { formatPlayDate } from "@/lib/dates";
-import { cn, formatPaise, formatTeeTime, HOLE_FORMAT_LABEL } from "@/lib/utils";
-import type { HoleFormat, IsoDate, TeeSheetSlot, TeeSheetUnavailableReason, Uuid } from "@/types/database";
+import { addDays, formatPlayDate, isoWeekday } from "@/lib/dates";
+import { cn, formatPaise } from "@/lib/utils";
+import type { HoleFormat, IsoDate, TeeSheetSlot } from "@/types/database";
+import { BookingDrawer } from "./booking-drawer";
+import { Chronograph } from "./chronograph";
+import {
+  blockedReason,
+  clock,
+  slotAllows,
+  slotKey,
+  windowOf,
+  WINDOWS,
+  type CourseInfo,
+  type DateOption,
+  type FlightHandicaps,
+  type Viewer,
+  type WindowId,
+} from "./model";
 
-export type DateOption = { date: IsoDate; closed: boolean };
+export type { DateOption } from "./model";
 
 type Props = {
-  course: {
-    id: Uuid;
-    slug: string;
-    name: string;
-    holesCount: number;
-    maxPlayers: number;
-    holdMinutes: number;
-    allowJoin: boolean;
-    /** Flat non-member fee when the course prices members and guests separately. */
-    guestFeePaise: number | null;
-  };
+  course: CourseInfo;
+  courses: { slug: string; name: string }[];
   dates: DateOption[];
+  today: IsoDate;
   date: IsoDate;
   format: HoleFormat;
   players: number;
   slots: TeeSheetSlot[];
-  signedIn: boolean;
+  handicaps: Record<string, FlightHandicaps>;
+  viewer: Viewer;
 };
 
-const REASON_LABEL: Record<TeeSheetUnavailableReason, string> = {
-  course_closed_on_date: "Closed",
-  beyond_booking_window: "Not open yet",
-  tee_time_in_past: "Gone",
-  inside_booking_cutoff: "Closed online",
-  private_four_ball: "Blocked",
-  slot_full: "Full",
-  open_batch_join_disabled: "Taken",
-};
-
-const PERIODS = [
-  { label: "Early", until: "07:00:00" },
-  { label: "Morning", until: "10:00:00" },
-  { label: "Midday", until: "13:00:00" },
-  { label: "Afternoon", until: "24:00:00" },
-] as const;
-
-function slotAllows(slot: TeeSheetSlot, format: HoleFormat): boolean {
-  if (format === "full_18") return slot.allows_full_18;
-  if (format === "front_9") return slot.allows_front_9;
-  return slot.allows_back_9;
-}
-
-export function TeeSheet({ course, dates, date, format, players, slots, signedIn }: Props) {
+export function TeeSheet({ course, courses, dates, today, date, format, players: initialPlayers, slots, handicaps, viewer }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [navigating, startNavigation] = useTransition();
-  const [isPrivate, setIsPrivate] = useState(false);
-  const [pendingTime, setPendingTime] = useState<string | null>(null);
+  const [players, setPlayers] = useState(initialPlayers);
+  const [caddies, setCaddies] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const dateStrip = useRef<HTMLDivElement>(null);
 
-  const formats: HoleFormat[] = course.holesCount === 18 ? ["full_18", "front_9", "back_9"] : ["front_9"];
-
-  // Keep the selected date in view on load.
-  useEffect(() => {
-    dateStrip.current?.querySelector<HTMLElement>("[aria-current='date']")?.scrollIntoView({ inline: "center", block: "nearest" });
-  }, [date]);
-
-  // Seat counts move while golfers book; refresh every 45 s while the tab is visible.
+  // Seat counts move while golfers book; refresh every 45 s while the tab is visible and no slot is open.
   useEffect(() => {
     const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible") router.refresh();
+      if (document.visibilityState === "visible" && selected === null) router.refresh();
     }, 45_000);
     return () => window.clearInterval(timer);
-  }, [router]);
+  }, [router, selected]);
 
-  function navigate(next: Partial<{ date: IsoDate; format: HoleFormat; players: number }>) {
-    const params = new URLSearchParams({
-      date: next.date ?? date,
-      format: next.format ?? format,
-      players: String(next.players ?? players),
-    });
+  function navigate(next: Partial<{ date: IsoDate; format: HoleFormat; slug: string }>) {
+    const params = new URLSearchParams({ date: next.date ?? date, format: next.format ?? format, players: String(players) });
+    const base = next.slug ? `/courses/${next.slug}/book` : pathname;
     setError(null);
-    startNavigation(() => router.push(`${pathname}?${params.toString()}`, { scroll: false }));
+    setSelected(null);
+    startNavigation(() => router.push(`${base}?${params.toString()}`, { scroll: false }));
   }
 
   const visible = useMemo(
@@ -94,23 +69,36 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
     [slots, format],
   );
 
-  const grouped = useMemo(() => {
-    let start = 0;
-    return PERIODS.map((period) => {
-      const items = visible.filter((s, i) => i >= start && s.tee_time < period.until);
-      start += items.length;
-      return { label: period.label, items };
-    }).filter((g) => g.items.length > 0);
-  }, [visible]);
+  // Open on the first window that still has a tee time this party can take.
+  const [windowId, setWindowId] = useState<WindowId>(() => {
+    const firstFree = visible.find((s) => blockedReason(s, initialPlayers) === null);
+    return firstFree ? windowOf(firstFree.tee_time) : "morning";
+  });
+  useEffect(() => {
+    const firstFree = visible.find((s) => blockedReason(s, players) === null);
+    if (firstFree) setWindowId(windowOf(firstFree.tee_time));
+    // Only when the day or format changes, not on every player-count change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date, format]);
 
-  async function choose(slot: TeeSheetSlot) {
+  const windows = WINDOWS.map((w) => {
+    const inWindow = visible.filter((s) => windowOf(s.tee_time) === w.id);
+    const open = inWindow.filter((s) => blockedReason(s, players) === null).length;
+    const range = inWindow.length ? `${clock(inWindow[0]!.tee_time)}–${clock(inWindow[inWindow.length - 1]!.tee_time)}` : "None";
+    return { ...w, range, open, empty: inWindow.length === 0 };
+  });
+
+  const slot = selected ? (visible.find((s) => slotKey(s) === selected) ?? null) : null;
+
+  async function confirm(isPrivate: boolean) {
+    if (!slot) return;
     setError(null);
-    const params = new URLSearchParams({ date, format, players: String(players) });
-    if (!signedIn) {
+    if (!viewer) {
+      const params = new URLSearchParams({ date, format, players: String(players) });
       router.push(`/login?next=${encodeURIComponent(`${pathname}?${params.toString()}`)}`);
       return;
     }
-    setPendingTime(slot.tee_time);
+    setPending(true);
     const result = await acquireHoldAction({
       courseId: course.id,
       playDate: date,
@@ -120,7 +108,7 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
       isPrivate,
     });
     if (!result.ok) {
-      setPendingTime(null);
+      setPending(false);
       setError(result.error);
       router.refresh();
       return;
@@ -128,181 +116,280 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
     router.push(`/checkout/${result.data.holdId}`);
   }
 
+  const quick = quickDates(dates, today);
+  const nine = format !== "full_18";
+
   return (
-    <div className="mx-auto max-w-6xl px-5 py-10 sm:py-14">
-      <p className="text-eyebrow uppercase text-brass-700">{course.name}</p>
-      <h1 className="mt-3 font-display text-display-sm text-pine">Choose a tee time</h1>
-
-      {/* Date strip */}
-      <div ref={dateStrip} className="-mx-5 mt-8 flex gap-2 overflow-x-auto px-5 pb-2" role="tablist" aria-label="Play date">
-        {dates.map((d) => {
-          const active = d.date === date;
-          const [weekday, day, month] = formatPlayDate(d.date, "short").replace(",", "").split(" ");
-          return (
-            <button
-              key={d.date}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              aria-current={active ? "date" : undefined}
-              disabled={d.closed}
-              onClick={() => navigate({ date: d.date })}
-              className={cn(
-                "numerals flex w-16 shrink-0 flex-col items-center rounded-card border py-2.5 transition-colors",
-                active ? "border-brass bg-brass text-white" : "border-alabaster-300 bg-card text-pine hover:border-pine/40",
-                d.closed && "cursor-not-allowed bg-transparent text-ink-faint",
-              )}
-            >
-              <span className="text-eyebrow uppercase">{weekday}</span>
-              <span className="font-display text-2xl leading-7">{day}</span>
-              <span className="text-[0.65rem] uppercase tracking-wider">{d.closed ? "Closed" : month}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Controls */}
-      <div className="mt-6 flex flex-wrap items-center gap-4">
-        <div role="radiogroup" aria-label="Holes" className="flex gap-1 rounded-card bg-alabaster-200 p-1">
-          {formats.map((f) => (
-            <button
-              key={f}
-              type="button"
-              role="radio"
-              aria-checked={f === format}
-              onClick={() => navigate({ format: f })}
-              className={cn(
-                "h-9 rounded-[0.25rem] px-4 text-sm transition-colors",
-                f === format ? "bg-card text-pine shadow-hairline" : "text-ink-muted hover:text-pine",
-              )}
-            >
-              {HOLE_FORMAT_LABEL[f]}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-1 rounded-card border border-alabaster-300 bg-card p-1">
-          <button
-            type="button"
-            aria-label="Fewer players"
-            disabled={players <= (isPrivate ? 3 : 1)}
-            onClick={() => navigate({ players: players - 1 })}
-            className="grid size-9 place-items-center rounded-[0.25rem] text-pine hover:bg-pine-50 disabled:opacity-30"
-          >
-            <Minus className="size-4" />
-          </button>
-          <span className="numerals flex min-w-24 items-center justify-center gap-1.5 text-sm text-pine" aria-live="polite">
-            <Users className="size-4" aria-hidden />
-            {isPrivate ? `${players}-ball` : `${players} player${players > 1 ? "s" : ""}`}
-          </span>
-          <button
-            type="button"
-            aria-label="More players"
-            disabled={players >= course.maxPlayers}
-            onClick={() => navigate({ players: players + 1 })}
-            className="grid size-9 place-items-center rounded-[0.25rem] text-pine hover:bg-pine-50 disabled:opacity-30"
-          >
-            <Plus className="size-4" />
-          </button>
-        </div>
-
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-muted">
-          <input
-            type="checkbox"
-            checked={isPrivate}
-            onChange={(e) => {
-              setIsPrivate(e.target.checked);
-              if (e.target.checked && players < 3) navigate({ players: Math.min(4, course.maxPlayers) });
-            }}
-            className="size-4 accent-pine"
-          />
-          <Lock className="size-3.5" aria-hidden />
-          Block the slot as a 3-ball or 4-ball
-        </label>
-
-        {navigating ? <Loader2 className="size-4 animate-spin text-ink-faint" aria-label="Loading" /> : null}
-      </div>
-
-      <p className="mt-4 text-sm text-ink-muted">
-        {formatPlayDate(date)} · {HOLE_FORMAT_LABEL[format]}
-        {format === "back_9" ? " (tees off on hole 10)" : ""}. Seats are held for {course.holdMinutes} minutes while you pay.
-        {course.guestFeePaise !== null ? ` Members play free; guests pay ${formatPaise(course.guestFeePaise)} each.` : ""}
-      </p>
-
-      {error ? (
-        <Notice tone="error" className="mt-6">
-          {error}
-        </Notice>
-      ) : null}
-
-      {/* Slots */}
-      <div className={cn("mt-8 space-y-10 transition-opacity", navigating && "opacity-50")}>
-        {grouped.length === 0 ? (
-          <p className="rounded-card border border-alabaster-400 p-10 text-center text-ink-muted">
-            No {HOLE_FORMAT_LABEL[format].toLowerCase()} tee times on this date.
+    <div className="overflow-x-clip">
+      {/* Editorial hero: type left, photograph bleeding off the right edge */}
+      <section className="mx-auto grid max-w-6xl gap-8 px-5 pt-10 md:grid-cols-12 md:items-end md:pt-16">
+        <div className="md:col-span-5 md:pb-24">
+          <p className="text-sm text-ink-muted">
+            {course.name}, {course.city}
           </p>
-        ) : (
-          grouped.map((group) => (
-            <section key={group.label}>
-              <h2 className="text-eyebrow uppercase text-ink-faint">{group.label}</h2>
-              <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-                <AnimatePresence initial={false}>
-                  {group.items.map((slot) => {
-                    const wanted = players;
-                    const blockedReason: string | null = slot.unavailable_reason
-                      ? REASON_LABEL[slot.unavailable_reason]
-                      : isPrivate && slot.seats_taken > 0
-                        ? "Shared"
-                        : slot.seats_left < wanted
-                          ? `${slot.seats_left} left`
-                          : null;
-                    const price = format === "full_18" ? slot.price_18_paise : slot.price_9_paise;
-                    const busy = pendingTime === slot.tee_time;
-                    return (
-                      <motion.li key={`${slot.tee_time}-${slot.start_hole}`} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                        <button
-                          type="button"
-                          disabled={blockedReason !== null || pendingTime !== null}
-                          onClick={() => void choose(slot)}
-                          className={cn(
-                            "numerals group w-full rounded-card border p-3.5 text-left transition-all duration-200 ease-quiet",
-                            blockedReason
-                              ? "cursor-not-allowed border-alabaster-300 bg-alabaster-200/60 text-ink-faint"
-                              : "border-alabaster-300 bg-card text-pine shadow-hairline hover:-translate-y-0.5 hover:border-brass hover:shadow-card",
-                          )}
-                        >
-                          <span className="flex items-center justify-between">
-                            <span className="font-mono tracking-tight text-2xl">{formatTeeTime(slot.tee_time)}</span>
-                            {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-                          </span>
-                          <span className="mt-2 flex items-center gap-1" aria-label={`${slot.seats_left} of ${course.maxPlayers} seats free`}>
-                            {Array.from({ length: course.maxPlayers }, (_, i) => (
-                              <span
-                                key={i}
-                                className={cn(
-                                  "size-2 rounded-full",
-                                  i < slot.seats_taken ? "bg-ink-faint/50" : blockedReason ? "bg-alabaster-400" : "bg-brass",
-                                )}
-                              />
-                            ))}
-                            {slot.seats_taken > 0 && !slot.is_private_locked && !blockedReason ? (
-                              <span className="ml-1 text-[0.65rem] uppercase tracking-wider text-ink-muted">Open group</span>
-                            ) : null}
-                          </span>
-                          <span className="mt-2 block text-xs">
-                            {blockedReason ??
-                              (course.guestFeePaise !== null ? `Guests ${formatPaise(course.guestFeePaise)}` : `${formatPaise(price)} / player`)}
-                          </span>
-                        </button>
-                      </motion.li>
-                    );
-                  })}
-                </AnimatePresence>
-              </ul>
-            </section>
-          ))
-        )}
+          <h1 className="mt-4 font-display text-[clamp(2.75rem,6.2vw,5rem)] font-normal leading-[0.95] tracking-[-0.02em] text-pine">
+            Reserve a<br />
+            tee time
+          </h1>
+          <p className="mt-6 max-w-sm text-[15px] leading-relaxed text-ink-muted">
+            First tee at <span className="font-mono tabular-nums text-pine">{clock(course.firstTee)}</span>.{" "}
+            {course.guestFeePaise !== null ? (
+              <>
+                Members play free. Guests pay <span className="font-mono tabular-nums text-pine">{formatPaise(course.guestFeePaise)}</span>{" "}
+                each.
+              </>
+            ) : (
+              "Green fees are shown per flight."
+            )}{" "}
+            A chosen time is held for {course.holdMinutes} minutes while you pay.
+          </p>
+        </div>
+        <figure className="md:col-span-7 md:mr-[calc(-1*max(0px,(100vw-72rem)/2)-1.25rem)]">
+          {/* eslint-disable-next-line @next/next/no-img-element -- static poster, no optimisation needed */}
+          <img
+            src={course.heroImage}
+            alt="A fairway lined with tall trees in early morning mist"
+            className="h-60 w-full object-cover sm:h-80 md:h-[26rem]"
+          />
+          <figcaption className="mt-2 px-0.5 text-[11px] text-ink-faint">Fairway at first light. Illustrative image, AI-generated.</figcaption>
+        </figure>
+      </section>
+
+      {/* Reservation strip */}
+      <div className="mx-auto max-w-6xl px-5">
+        <div
+          className={cn(
+            "relative z-10 grid border border-alabaster-300 bg-alabaster-50 md:-mt-20 md:mr-24 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.6fr)_minmax(0,1.7fr)_auto_auto]",
+            "mt-6 divide-y divide-alabaster-300 md:divide-x md:divide-y-0",
+          )}
+        >
+          <Segment label="Course">
+            <div className="relative">
+              <select
+                aria-label="Course"
+                value={course.slug}
+                onChange={(e) => navigate({ slug: e.target.value })}
+                className="w-full appearance-none truncate bg-transparent pr-5 text-[15px] font-medium text-pine focus:outline-none"
+              >
+                {courses.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <Caret />
+            </div>
+          </Segment>
+
+          <Segment label="Date">
+            <div className="flex flex-wrap items-center gap-1">
+              {quick.map((q) => (
+                <Choice key={q.label} active={q.date === date} disabled={q.closed} onClick={() => navigate({ date: q.date })}>
+                  {q.label}
+                </Choice>
+              ))}
+              <div className="relative">
+                <select
+                  aria-label="Other date"
+                  value={quick.some((q) => q.date === date) ? "" : date}
+                  onChange={(e) => e.target.value && navigate({ date: e.target.value })}
+                  className={cn(
+                    "h-8 appearance-none rounded-[3px] bg-transparent pl-2 pr-6 text-sm focus:outline-none",
+                    quick.some((q) => q.date === date) ? "text-ink-muted" : "bg-alabaster-200 text-pine shadow-[inset_0_0_0_1px_rgb(24_22_20/0.35)]",
+                  )}
+                >
+                  <option value="">Other date</option>
+                  {dates.map((d) => (
+                    <option key={d.date} value={d.date} disabled={d.closed}>
+                      {formatPlayDate(d.date, "short")}
+                      {d.closed ? " (closed)" : ""}
+                    </option>
+                  ))}
+                </select>
+                <Caret />
+              </div>
+            </div>
+          </Segment>
+
+          <Segment label="Window">
+            <div className="grid grid-cols-3 gap-1" role="radiogroup" aria-label="Time window">
+              {windows.map((w) => (
+                <button
+                  key={w.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={w.id === windowId}
+                  disabled={w.empty}
+                  onClick={() => setWindowId(w.id)}
+                  className={cn(
+                    "rounded-[3px] px-2 py-1 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+                    w.id === windowId ? "bg-alabaster-200 shadow-[inset_0_0_0_1px_rgb(24_22_20/0.35)]" : "hover:bg-alabaster-200/60",
+                  )}
+                >
+                  <span className="block text-sm text-pine">{w.label}</span>
+                  <span className="block font-mono text-[11px] tabular-nums text-ink-muted">{w.range}</span>
+                </button>
+              ))}
+            </div>
+          </Segment>
+
+          <Segment label="Holes">
+            <div className="flex items-center gap-1" role="radiogroup" aria-label="Holes">
+              <Choice active={!nine} onClick={() => navigate({ format: "full_18" })} mono disabled={course.holesCount !== 18}>
+                18H
+              </Choice>
+              <Choice active={nine} onClick={() => !nine && navigate({ format: "front_9" })} mono>
+                9H
+              </Choice>
+              {nine && course.holesCount === 18 ? (
+                <select
+                  aria-label="Which nine"
+                  value={format}
+                  onChange={(e) => navigate({ format: e.target.value as HoleFormat })}
+                  className="ml-1 h-8 appearance-none bg-transparent text-sm text-ink-muted underline decoration-alabaster-400 underline-offset-4 focus:outline-none"
+                >
+                  <option value="front_9">from 1</option>
+                  <option value="back_9">from 10</option>
+                </select>
+              ) : null}
+            </div>
+          </Segment>
+
+          <Segment label="Players">
+            <div className="flex items-center gap-1">
+              <Stepper label="Fewer players" disabled={players <= 1} onClick={() => setPlayers((p) => p - 1)}>
+                −
+              </Stepper>
+              <output aria-live="polite" className="w-7 text-center font-mono text-lg tabular-nums text-pine">
+                {players}
+              </output>
+              <Stepper label="More players" disabled={players >= course.maxPlayers} onClick={() => setPlayers((p) => p + 1)}>
+                +
+              </Stepper>
+            </div>
+          </Segment>
+        </div>
       </div>
+
+      <div className="mx-auto max-w-6xl px-5 pb-20">
+        {error ? (
+          <Notice tone="error" className="mt-6">
+            {error}
+          </Notice>
+        ) : null}
+
+        <Chronograph
+          className={cn("mt-14 transition-opacity", navigating && "opacity-50")}
+          course={course}
+          viewer={viewer}
+          date={date}
+          format={format}
+          players={players}
+          caddies={caddies}
+          onCaddiesChange={setCaddies}
+          slots={visible.filter((s) => windowOf(s.tee_time) === windowId)}
+          windowLabel={windows.find((w) => w.id === windowId)!.label}
+          handicaps={handicaps}
+          selected={selected}
+          onSelect={(s) => {
+            setError(null);
+            setSelected(slotKey(s));
+          }}
+        />
+      </div>
+
+      <BookingDrawer
+        slot={slot}
+        course={course}
+        viewer={viewer}
+        date={date}
+        format={format}
+        players={players}
+        onPlayersChange={setPlayers}
+        caddies={caddies}
+        onCaddiesChange={setCaddies}
+        handicaps={slot ? (handicaps[slotKey(slot)] ?? null) : null}
+        pending={pending}
+        error={error}
+        onClose={() => {
+          if (!pending) setSelected(null);
+        }}
+        onConfirm={confirm}
+      />
     </div>
+  );
+}
+
+/** Today, Tomorrow and the coming weekend day; the select covers the rest of the window. */
+function quickDates(dates: DateOption[], today: IsoDate) {
+  const find = (d: IsoDate) => dates.find((x) => x.date === d);
+  const out: { label: string; date: IsoDate; closed: boolean }[] = [];
+  const t = find(today);
+  if (t) out.push({ label: "Today", ...t });
+  const tm = find(addDays(today, 1));
+  if (tm) out.push({ label: "Tomorrow", ...tm });
+  const weekend = dates.find((d) => d.date > addDays(today, 1) && isoWeekday(d.date) >= 6 && !d.closed);
+  if (weekend) out.push({ label: `${isoWeekday(weekend.date) === 6 ? "Sat" : "Sun"} ${Number(weekend.date.slice(8))}`, ...weekend });
+  return out;
+}
+
+function Segment({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="min-w-0 px-4 py-3">
+      <p className="mb-1.5 text-xs text-ink-muted">{label}</p>
+      {children}
+    </div>
+  );
+}
+
+function Choice({
+  active,
+  disabled,
+  mono,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  mono?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        "h-8 rounded-[3px] px-2.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40",
+        mono && "font-mono tabular-nums",
+        active ? "bg-alabaster-200 text-pine shadow-[inset_0_0_0_1px_rgb(24_22_20/0.35)]" : "text-ink-muted hover:text-pine",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Stepper({ label, disabled, onClick, children }: { label: string; disabled: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className="grid size-8 place-items-center rounded-[3px] border border-alabaster-300 font-mono text-base text-pine transition-colors hover:border-pine/40 disabled:opacity-30"
+    >
+      {children}
+    </button>
+  );
+}
+
+function Caret() {
+  return (
+    <svg aria-hidden viewBox="0 0 10 6" className="pointer-events-none absolute right-1 top-1/2 h-1.5 w-2.5 -translate-y-1/2 text-ink-muted">
+      <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
   );
 }
