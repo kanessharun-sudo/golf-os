@@ -150,7 +150,7 @@ export function TeeSheet({ course, courses, dates, today, date, format, players:
           <img
             src={course.heroImage}
             alt="A fairway lined with tall trees in early morning mist"
-            className="h-60 w-full object-cover sm:h-80 md:h-[26rem]"
+            className="h-48 w-full object-cover sm:h-80 md:h-[26rem]"
           />
           <figcaption className="mt-2 px-0.5 text-[11px] text-ink-faint">Fairway at first light. Illustrative image, AI-generated.</figcaption>
         </figure>
@@ -161,11 +161,11 @@ export function TeeSheet({ course, courses, dates, today, date, format, players:
         <div
           className={cn(
             "relative z-10 mt-6 grid border border-alabaster-300 bg-alabaster-50 md:-mt-16",
-            "grid-cols-2 [&>*]:border-alabaster-300 [&>*]:border-t [&>*:nth-child(-n+2)]:border-t-0 [&>*:nth-child(even)]:border-l",
-            "lg:grid-cols-[minmax(11rem,1fr)_auto_auto_auto_auto] lg:[&>*]:border-t-0 lg:[&>*:not(:first-child)]:border-l",
+            "grid-cols-2 [&>*]:border-alabaster-300 [&>*:not(:first-child)]:border-t",
+            "lg:grid-cols-[minmax(11rem,1fr)_auto_auto_auto_auto] lg:[&>*:not(:first-child)]:border-l lg:[&>*:not(:first-child)]:border-t-0",
           )}
         >
-          <Segment label="Course">
+          <Segment label="Course" wide>
             <div className="relative">
               <select
                 aria-label="Course"
@@ -257,7 +257,7 @@ export function TeeSheet({ course, courses, dates, today, date, format, players:
             </div>
           </Segment>
 
-          <Segment label="Players">
+          <Segment label="Players" className="border-l lg:border-l">
             <div className="flex items-center gap-1">
               <Stepper label="Fewer players" disabled={players <= 1} onClick={() => setPlayers((p) => p - 1)}>
                 −
@@ -346,9 +346,19 @@ function quickDates(dates: DateOption[], today: IsoDate) {
   return out;
 }
 
-function Segment({ label, wide = false, children }: { label: string; wide?: boolean; children: React.ReactNode }) {
+function Segment({
+  label,
+  wide = false,
+  className,
+  children,
+}: {
+  label: string;
+  wide?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className={cn("min-w-0 px-4 py-3", wide && "col-span-2 lg:col-span-1")}>
+    <div className={cn("min-w-0 px-4 py-3", wide && "col-span-2 lg:col-span-1", className)}>
       <p className="mb-1.5 text-xs text-ink-muted">{label}</p>
       {children}
     </div>

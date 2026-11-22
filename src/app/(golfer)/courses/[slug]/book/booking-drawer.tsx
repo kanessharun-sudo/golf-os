@@ -198,7 +198,7 @@ function DrawerBody({
       </dl>
 
       <div className="px-6 py-6">
-        <h3 className="text-sm text-ink-muted">Fees</h3>
+        <h3 className="font-sans text-sm font-normal text-ink-muted">Fees</h3>
         <table className="mt-3 w-full text-sm">
           <tbody>
             {fees.lines.map((l) => (
