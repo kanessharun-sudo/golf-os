@@ -5,6 +5,9 @@ import { updateSession } from "@/lib/supabase/middleware";
 const PROTECTED_PREFIXES = ["/caddy", "/admin", "/rounds", "/account", "/bookings", "/checkout"] as const;
 
 export async function middleware(request: NextRequest) {
+  // The front page is a static file and needs no session.
+  if (request.nextUrl.pathname === "/") return NextResponse.next();
+
   const { response, user } = await updateSession(request);
   const { pathname, search } = request.nextUrl;
 
@@ -20,5 +23,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|images/|api/webhooks/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|images/|landing/|api/webhooks/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif)$).*)"],
 };

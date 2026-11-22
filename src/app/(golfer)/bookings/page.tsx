@@ -37,7 +37,7 @@ export default async function BookingsPage() {
       {bookings.length === 0 ? (
         <div className="mt-10 rounded-card border border-dashed border-alabaster-400 p-10 text-center">
           <p className="text-ink-muted">No bookings yet.</p>
-          <Link href="/" className={cn(buttonVariants(), "mt-6")}>
+          <Link href="/courses" className={cn(buttonVariants(), "mt-6")}>
             Find a tee time
           </Link>
         </div>

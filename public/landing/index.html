@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ASC Centre Golf Course · Tee times and live scoring</title>
+<meta name="theme-color" content="#0B2B1E">
+<link rel="icon" href="/favicon.ico">
+<meta name="description" content="Tee times, live scorecards and handicaps at ASC Centre Golf Course, Bengaluru.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F7F5F0;
+  --paper-2: #EEEBE3;
+  --ink: #121A15;
+  --ink-2: #333C37;
+  --ink-3: #59615C;
+  --pine: #0B2B1E;
+  --pine-2: #14402D;
+  --brass: #8E6F36;
+  --rule: rgba(29, 38, 33, .16);
+  --rule-strong: rgba(29, 38, 33, .32);
+  --on-dark: #F3F0E8;
+  --on-dark-2: rgba(243, 240, 232, .84);
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans: "Work Sans", "Helvetica Neue", Arial, sans-serif;
+  --gutter: clamp(16px, 4vw, 56px);
+  --max: 1280px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img, video { display: block; max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+.wrap { max-width: var(--max); margin: 0 auto; padding-left: max(var(--gutter), env(safe-area-inset-left, 0px)); padding-right: max(var(--gutter), env(safe-area-inset-right, 0px)); }
+section { scroll-margin-top: 72px; }
+
+/* Type */
+h1, h2, h3 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.01em; line-height: 1.12; margin: 0; font-optical-sizing: auto; }
+h1 { font-size: clamp(42px, 6.2vw, 80px); font-weight: 480; letter-spacing: -0.02em; }
+h2 { font-size: clamp(34px, 4.4vw, 58px); font-weight: 480; letter-spacing: -0.015em; }
+h3 { font-size: clamp(22px, 2vw, 28px); }
+p { margin: 0; }
+.label { font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+.lede { font-size: 19px; color: var(--ink-2); max-width: 560px; }
+.link { display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; padding-bottom: 4px; border-bottom: 1px solid currentColor; transition: opacity .2s; }
+.link:hover { opacity: .6; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 28px; background: var(--pine); color: var(--on-dark); border: 1px solid var(--pine); font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: background .2s; white-space: nowrap; }
+.btn:hover { background: var(--pine-2); }
+.btn.ghost { background: transparent; color: var(--on-dark); border-color: rgba(243,240,232,.6); }
+.btn.ghost:hover { background: rgba(243,240,232,.1); }
+.note { font-size: 11px; color: var(--ink-3); letter-spacing: .02em; }
+
+/* Header */
+.top { position: fixed; inset: 0 0 auto; z-index: 20; padding-top: env(safe-area-inset-top, 0px); color: var(--on-dark); transition: background .3s, color .3s, border-color .3s; border-bottom: 1px solid transparent; }
+.top.solid { background: var(--paper); color: var(--ink); border-bottom-color: var(--rule); }
+.top-in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 72px; }
+.top nav { display: flex; gap: 28px; }
+.top nav a { font-size: 14px; font-weight: 500; text-decoration: none; letter-spacing: .02em; }
+.top nav a:hover { opacity: .6; }
+.mark { text-align: center; text-decoration: none; line-height: 1.1; }
+.mark b { display: block; font-family: var(--serif); font-weight: 600; font-size: 22px; letter-spacing: .01em; }
+.mark small { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; opacity: .75; }
+.top-cta { justify-self: end; }
+.top .btn { min-height: 40px; padding: 0 18px; font-size: 12px; }
+.top:not(.solid) .btn { background: transparent; border-color: rgba(243,240,232,.6); }
+@media (max-width: 860px) {
+  .top nav { display: none; }
+  .top-in { grid-template-columns: auto 1fr auto; height: 60px; }
+  .mark { text-align: left; grid-column: 1; }
+  .mark b { font-size: 19px; }
+  .top-cta { grid-column: 3; }
+  .top .btn { padding: 0 14px; font-size: 11px; }
+}
+
+/* Hero */
+.hero { position: relative; height: 100svh; min-height: 560px; max-height: 980px; color: var(--on-dark); overflow: hidden; background: #1a231e; }
+.hero video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero::before { content: ""; position: absolute; z-index: 1; inset: 0 0 auto; height: 160px; background: linear-gradient(180deg, rgba(10,16,12,.45), rgba(10,16,12,0)); pointer-events: none; }
+.hero::after { content: ""; position: absolute; inset: auto 0 0; height: 60%; background: linear-gradient(0deg, rgba(10,16,12,.6), rgba(10,16,12,0)); }
+.hero-copy { position: absolute; z-index: 1; left: 0; right: 0; bottom: clamp(48px, 9vh, 96px); }
+.hero h1 { max-width: 13ch; }
+.hero p.sub { margin-top: 20px; max-width: 480px; color: var(--on-dark-2); font-size: 18px; }
+.hero-actions { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+.hero .note { position: absolute; z-index: 1; right: max(var(--gutter), env(safe-area-inset-right, 0px)); bottom: 16px; color: rgba(243,240,232,.65); }
+
+/* Intro */
+.intro { padding-block: clamp(88px, 12vw, 160px) clamp(64px, 8vw, 112px); text-align: center; }
+.intro h2 { max-width: 18ch; margin: 18px auto 0; }
+.intro .lede { margin: 24px auto 0; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 760px; margin: 64px auto 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.facts div { padding: 24px 12px; }
+.facts div + div { border-left: 1px solid var(--rule); }
+.facts b { display: block; font-family: var(--serif); font-weight: 450; font-size: clamp(30px, 4vw, 44px); line-height: 1; }
+.facts span { display: block; margin-top: 10px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Three ways in */
+.trio { padding-bottom: clamp(88px, 12vw, 160px); }
+.trio-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2.4vw, 32px); }
+.card .media { aspect-ratio: 4 / 5; overflow: hidden; background: var(--paper-2); }
+.card .media video, .card .media img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s cubic-bezier(.2,.7,.2,1); }
+.card:hover .media video, .card:hover .media img { transform: scale(1.03); }
+.card .label { margin-top: 22px; display: block; }
+.card h3 { margin-top: 10px; }
+.card p { margin-top: 12px; color: var(--ink-2); max-width: 36ch; }
+.card .link { margin-top: 20px; }
+.card p.note { margin-top: 10px; color: var(--ink-3); }
+@media (max-width: 860px) { .trio-grid { grid-template-columns: minmax(0, 1fr); gap: 56px; } .card .media { aspect-ratio: 4 / 3; } }
+
+/* Course */
+.course { background: var(--paper-2); padding-block: clamp(88px, 12vw, 160px); }
+.course-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+.course-text h2 { margin-top: 18px; }
+.course-text .lede { margin-top: 20px; }
+.course-film { margin-top: 40px; aspect-ratio: 16 / 10; overflow: hidden; background: #26322b; }
+.course-film video { width: 100%; height: 100%; object-fit: cover; }
+.course-text .note { margin-top: 10px; }
+.card-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; border-bottom: 1px solid var(--rule-strong); padding-bottom: 14px; }
+.nines { display: flex; gap: 24px; }
+.nines button { background: none; border: 0; padding: 0 0 6px; cursor: pointer; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid transparent; }
+.nines button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.hole-line { min-height: 3.6em; padding-block: 18px; font-family: var(--serif); font-weight: 500; font-size: 21px; line-height: 1.35; color: var(--ink); border-bottom: 1px solid var(--rule); }
+.hole-line span { color: var(--ink-3); }
+table.sc { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.sc th { text-align: left; font-weight: 500; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); padding: 14px 8px; border-bottom: 1px solid var(--rule); }
+.sc td { padding: 12px 8px; border-bottom: 1px solid var(--rule); font-size: 15px; }
+.sc td:first-child { font-family: var(--serif); font-size: 18px; width: 22%; }
+.sc th:not(:first-child), .sc td:not(:first-child) { text-align: right; }
+.sc tbody tr { cursor: default; transition: background .15s; }
+.sc tbody tr:hover, .sc tbody tr.on { background: rgba(255,255,255,.6); }
+.sc tfoot td { font-weight: 500; border-bottom: 1px solid var(--rule-strong); }
+.sc tfoot tr:first-child td { border-top: 1px solid var(--rule-strong); }
+.sc tfoot td:first-child { font-family: var(--sans); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.sc .hard { color: var(--brass); font-weight: 500; }
+.sc-note { margin-top: 14px; font-size: 13px; color: var(--ink-3); }
+@media (max-width: 960px) { .course-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Book */
+.book { padding-block: clamp(88px, 12vw, 160px); }
+.book-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
+.book-text h2 { margin-top: 18px; }
+.book-text .lede { margin-top: 20px; }
+.rules { margin: 36px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--rule); }
+.rules li { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+.rules li b { font-weight: 500; white-space: nowrap; }
+.panel { border: 1px solid var(--rule-strong); background: #FBFAF7; }
+.panel-row { padding: 24px clamp(16px, 3vw, 32px); border-bottom: 1px solid var(--rule); }
+.panel-row:last-child { border-bottom: 0; }
+.panel .label { display: block; margin-bottom: 14px; }
+.days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--rule); }
+.days button { background: none; border: 0; border-right: 1px solid var(--rule); padding: 10px 0; cursor: pointer; line-height: 1.25; }
+.days button:last-child { border-right: 0; }
+.days button small { display: block; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.days button b { font-family: var(--serif); font-weight: 400; font-size: 20px; }
+.days button[aria-pressed="true"] { background: var(--pine); color: var(--on-dark); }
+.days button[aria-pressed="true"] small { color: var(--on-dark-2); }
+.times { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.times button { background: none; border: 1px solid var(--rule); padding: 9px 0; cursor: pointer; font-size: 14px; font-variant-numeric: tabular-nums; }
+.times button:hover:not(:disabled) { border-color: var(--ink); }
+.times button:disabled { color: var(--ink-3); opacity: .5; text-decoration: line-through; cursor: not-allowed; }
+.times button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--on-dark); }
+@media (max-width: 560px) { .times { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.seg { display: inline-grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--rule-strong); }
+.seg button { background: none; border: 0; padding: 10px 22px; cursor: pointer; font-size: 14px; }
+.seg button + button { border-left: 1px solid var(--rule-strong); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.players { margin: 0; padding: 0; list-style: none; }
+.players li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.players li:last-child { border-bottom: 0; }
+.players .n { font-family: var(--serif); color: var(--ink-3); }
+.players .who b { font-weight: 500; display: block; font-size: 15px; }
+.players .who span { font-size: 13px; color: var(--ink-3); }
+.players .fee { font-variant-numeric: tabular-nums; font-size: 15px; text-align: right; }
+.total { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.total .sum { font-family: var(--serif); font-size: 36px; font-weight: 450; line-height: 1; }
+.total .sum-sub { font-size: 13px; color: var(--ink-3); margin-top: 6px; }
+@media (max-width: 960px) { .book-grid { grid-template-columns: minmax(0, 1fr); } }
+.confirm { margin-top: 16px; font-size: 14px; color: var(--pine-2); min-height: 1.5em; }
+
+/* Score */
+.score { background: var(--pine); color: var(--on-dark); padding-block: clamp(88px, 12vw, 160px); }
+.score .label { color: rgba(243,240,232,.6); }
+.score .lede { color: var(--on-dark-2); }
+.score-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 96px); align-items: center; }
+.score-text h2 { margin-top: 18px; }
+.score-text .lede { margin-top: 20px; }
+.steps { margin: 40px 0 0; padding: 0; list-style: none; counter-reset: s; border-top: 1px solid rgba(243,240,232,.18); }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 44px minmax(0, 1fr); padding: 18px 0; border-bottom: 1px solid rgba(243,240,232,.18); color: var(--on-dark-2); }
+.steps li::before { content: counter(s, upper-roman); font-family: var(--serif); color: var(--on-dark); }
+.steps b { color: var(--on-dark); font-weight: 500; }
+.entry { background: var(--paper); color: var(--ink); max-width: 440px; justify-self: end; width: 100%; }
+.entry-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 22px 24px; border-bottom: 1px solid var(--rule); }
+.entry-top h3 { font-size: 26px; }
+.entry-top span { font-size: 13px; color: var(--ink-3); text-align: right; }
+.entry-body { padding: 4px 24px; }
+.prow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.prow:last-child { border-bottom: 0; }
+.prow b { font-weight: 500; display: block; font-size: 15px; }
+.prow span { font-size: 12px; color: var(--ink-3); }
+.step { display: inline-grid; grid-template-columns: 36px 44px 36px; align-items: center; border: 1px solid var(--rule-strong); }
+.step button { height: 36px; background: none; border: 0; cursor: pointer; font-size: 18px; color: var(--ink-2); }
+.step output { text-align: center; font-family: var(--serif); font-size: 22px; border-left: 1px solid var(--rule); border-right: 1px solid var(--rule); line-height: 36px; }
+.entry-foot { display: flex; justify-content: space-between; padding: 14px 24px; border-top: 1px solid var(--rule); }
+.entry-foot button { background: none; border: 0; padding: 4px 0; cursor: pointer; font-size: 13px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 960px) { .score-grid { grid-template-columns: minmax(0, 1fr); } .entry { justify-self: start; } }
+@media (max-width: 400px) { .entry-top, .entry-body, .entry-foot { padding-left: 16px; padding-right: 16px; } }
+
+/* Handicap */
+.index { padding-block: clamp(88px, 12vw, 160px); }
+.index-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); align-items: end; }
+.index-text h2 { margin-top: 18px; }
+.index-text .lede { margin-top: 20px; }
+.big { display: flex; align-items: baseline; gap: 18px; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--rule); }
+.big b { font-family: var(--serif); font-weight: 450; font-size: clamp(72px, 9vw, 112px); line-height: .9; }
+.big span { font-size: 14px; color: var(--ink-2); }
+.chart { width: 100%; height: auto; }
+.chart text { font-family: var(--sans); font-size: 11px; fill: var(--ink-3); }
+.legend { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 12px; font-size: 13px; color: var(--ink-3); }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+@media (max-width: 960px) { .index-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Membership */
+.member { background: var(--paper-2); padding-block: clamp(88px, 12vw, 160px); }
+.member-head { text-align: center; }
+.member-head h2 { margin: 18px auto 0; max-width: 20ch; }
+.compare { max-width: 880px; margin: 56px auto 0; width: 100%; border-collapse: collapse; }
+.compare th, .compare td { padding: 18px 16px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.compare thead th { font-family: var(--serif); font-weight: 400; font-size: 26px; border-bottom: 1px solid var(--rule-strong); }
+.compare thead td { border-bottom: 1px solid var(--rule-strong); }
+.compare thead th small { display: block; font-family: var(--sans); font-size: 13px; color: var(--ink-3); margin-top: 4px; }
+.compare tbody th { font-weight: 400; color: var(--ink-2); font-size: 15px; width: 34%; }
+.compare td { font-size: 15px; }
+.compare td b { font-family: var(--serif); font-weight: 400; font-size: 22px; }
+.calc { max-width: 880px; margin: 48px auto 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; }
+.calc label { display: block; font-size: 15px; color: var(--ink-2); }
+.calc label b { font-family: var(--serif); font-weight: 400; font-size: 22px; color: var(--ink); }
+.calc input[type=range] { width: 100%; margin-top: 14px; accent-color: var(--pine); }
+.calc-out { font-family: var(--serif); font-size: 22px; line-height: 1.4; }
+.calc-out span { color: var(--ink-3); }
+@media (max-width: 760px) {
+  .compare th, .compare td { padding: 14px 8px; }
+  .compare thead th { font-size: 20px; }
+  .compare tbody th { width: 38%; }
+  .calc { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* FAQ */
+.faq { padding-block: clamp(88px, 12vw, 160px); }
+.faq-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 96px); }
+.faq h2 { margin-top: 18px; }
+.faq details { border-bottom: 1px solid var(--rule); }
+.faq details:first-child { border-top: 1px solid var(--rule); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; gap: 24px; padding: 22px 0; font-family: var(--serif); font-weight: 500; font-size: 22px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-family: var(--sans); font-weight: 300; font-size: 22px; color: var(--ink-3); transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { padding: 0 0 24px; color: var(--ink-2); max-width: 60ch; }
+@media (max-width: 960px) { .faq-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Close */
+.close { position: relative; color: var(--on-dark); background: #1a231e; }
+.close img { width: 100%; height: clamp(420px, 70vh, 720px); object-fit: cover; }
+.close::after { content: ""; position: absolute; inset: 0; background: rgba(10,16,12,.4); pointer-events: none; }
+.close-copy { position: absolute; z-index: 1; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 24px; }
+.close-copy h2 { max-width: 22ch; }
+.close-copy .btn { margin-top: 32px; }
+.close .note { position: absolute; z-index: 1; right: max(var(--gutter), env(safe-area-inset-right, 0px)); bottom: 14px; color: rgba(243,240,232,.65); }
+footer { background: var(--pine); color: var(--on-dark-2); padding-top: 56px; padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); font-size: 14px; }
+.foot { display: grid; grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)); gap: 32px; }
+.foot b { display: block; font-family: var(--serif); font-weight: 400; font-size: 22px; color: var(--on-dark); margin-bottom: 8px; }
+.foot a { display: block; text-decoration: none; padding: 3px 0; }
+.foot a:hover { color: var(--on-dark); }
+.foot-base { margin-top: 48px; padding-top: 20px; border-top: 1px solid rgba(243,240,232,.16); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 12px; }
+@media (max-width: 760px) { .foot { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .foot > div:first-child { grid-column: 1 / -1; } }
+
+/* Motion (only when JS adds .motion, so no-JS and reduced-motion see everything) */
+.motion .rv { opacity: 0; transform: translateY(28px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+.motion .rv.in { opacity: 1; transform: none; }
+.motion .wipe > video { clip-path: inset(0 0 100% 0); transition: clip-path 1.3s cubic-bezier(.65,0,.25,1), transform 1.4s cubic-bezier(.2,.7,.2,1); }
+.motion .wipe.in > video { clip-path: inset(0 0 0 0); }
+.hero h1 .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .08em; margin-bottom: -.08em; }
+.hero h1 .w > span { display: inline-block; }
+.motion .hero h1 .w > span { transform: translateY(110%); transition: transform 1.1s cubic-bezier(.2,.7,.2,1); }
+.motion.loaded .hero h1 .w > span { transform: none; }
+.motion .hero .sub, .motion .hero-actions { opacity: 0; transform: translateY(12px); transition: opacity 1s .7s, transform 1s .7s; }
+.motion.loaded .hero .sub, .motion.loaded .hero-actions { opacity: 1; transform: none; }
+.top { transition: background .3s, color .3s, border-color .3s, transform .4s cubic-bezier(.2,.7,.2,1); }
+.top.hide { transform: translateY(-100%); }
+.hero video { will-change: transform; transform-origin: 50% 40%; }
+.link::after { content: "→"; display: inline-block; margin-left: 8px; transition: transform .3s; }
+.link:hover::after { transform: translateX(4px); }
+.card { cursor: default; }
+.card .media { position: relative; }
+.card .play-hint { position: absolute; left: 14px; bottom: 12px; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--on-dark); opacity: .85; transition: opacity .3s; pointer-events: none; }
+.card.playing .play-hint { opacity: 0; }
+@media (hover: none) { .card .play-hint { display: none; } }
+
+/* Scorecard bars and keyboard focus */
+.sc tbody tr { outline: none; }
+.sc tbody tr:focus-visible { box-shadow: inset 3px 0 0 var(--brass); }
+.sc .yd { white-space: nowrap; }
+.sc .bar { display: inline-block; height: 3px; width: calc(var(--w) * 96px); background: var(--rule-strong); margin-right: 12px; vertical-align: middle; transition: background .2s, width .6s cubic-bezier(.2,.7,.2,1); }
+.sc tr.on .bar { background: var(--brass); }
+@media (max-width: 560px) { .sc .bar { width: calc(var(--w) * 44px); margin-right: 8px; } }
+
+/* Booking extras */
+.who-tog { background: none; border: 1px solid var(--rule-strong); padding: 3px 10px; margin-top: 4px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--ink-2); }
+.who-tog:hover { border-color: var(--ink); color: var(--ink); }
+.who-tog.mem { background: var(--paper-2); }
+.fee { transition: color .3s; }
+.fee.flash { color: var(--brass); }
+.pass { margin-top: 18px; border-top: 1px dashed var(--rule-strong); padding-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 20px; }
+.motion .pass { animation: pass-in .7s cubic-bezier(.2,.7,.2,1); }
+@keyframes pass-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.pass div small { display: block; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.pass div b { font-family: var(--serif); font-weight: 500; font-size: 20px; }
+.pass p { grid-column: 1 / -1; font-size: 14px; color: var(--ink-2); }
+@media (max-width: 560px) { .pass { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+
+/* Score extras */
+.steps li { transition: color .4s; }
+.motion .steps li { color: rgba(243,240,232,.42); }
+.motion .steps li b { color: rgba(243,240,232,.6); transition: color .4s; }
+.motion .steps li.on, .motion .steps li.on b { color: var(--on-dark); }
+.strip { display: grid; grid-template-columns: repeat(18, minmax(0, 1fr)); border-bottom: 1px solid var(--rule); }
+.strip button { background: none; border: 0; border-right: 1px solid var(--rule); padding: 6px 0 5px; cursor: pointer; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.strip button:last-child { border-right: 0; }
+.strip button small { display: block; font-size: 9px; color: var(--ink-3); }
+.strip button b { font-family: var(--serif); font-weight: 500; font-size: 14px; color: var(--ink-3); }
+.strip button.done b { color: var(--ink); }
+.strip button.under b { color: var(--brass); }
+.strip button[aria-current="true"] { background: var(--pine); }
+.strip button[aria-current="true"] small, .strip button[aria-current="true"] b { color: var(--on-dark); }
+.entry-foot .tot { font-size: 13px; color: var(--ink-2); }
+
+/* Handicap extras */
+.post { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--rule); }
+.post label { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; color: var(--ink-2); }
+.post label b { font-family: var(--serif); font-weight: 500; font-size: 22px; color: var(--ink); }
+.post input[type=range] { width: 100%; margin: 12px 0 14px; accent-color: var(--pine); }
+.post-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.post-row span { font-size: 14px; color: var(--ink-2); }
+.post .btn { min-height: 42px; padding: 0 20px; }
+.chart circle { cursor: pointer; transition: r .2s; }
+.chart circle:hover, .chart circle.sel { r: 7; }
+.chart .fresh { animation: pop .8s cubic-bezier(.2,.7,.2,1); transform-box: fill-box; transform-origin: center; }
+@keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+.readout { margin-top: 10px; min-height: 1.6em; font-size: 14px; color: var(--ink-2); }
+.big b { transition: color .4s; }
+.big b.flash { color: var(--brass); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wrap top-in">
+    <nav aria-label="Sections">
+      <a href="#course">The course</a>
+      <a href="#book">Tee times</a>
+      <a href="#score">Scoring</a>
+      <a href="/login">Sign in</a>
+    </nav>
+    <a class="mark" href="#intro">
+      <b>ASC Centre</b>
+      <small>Golf Course · Bengaluru</small>
+    </a>
+    <div class="top-cta"><a class="btn" href="/courses/asc-centre-bengaluru/book">Book a tee time</a></div>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-label="Welcome">
+    <video autoplay muted loop playsinline preload="auto" poster="/landing/img/fairway-poster.jpg" aria-label="A misty fairway at dawn"><source src="/landing/video/fairway.mp4" type="video/mp4"></video>
+    <div class="hero-copy wrap">
+      <h1>Your morning at ASC Centre starts here.</h1>
+      <p class="sub">Book a tee time for your three or four, score every hole as you play, and see your handicap update when you walk off the eighteenth.</p>
+      <div class="hero-actions">
+        <a class="btn" href="/courses/asc-centre-bengaluru/book">Book a tee time</a>
+        <a class="btn ghost" href="#course">See the course</a>
+      </div>
+    </div>
+    <p class="note">Illustrative video, AI-generated</p>
+  </section>
+
+  <section class="intro" id="intro" aria-labelledby="intro-title">
+    <div class="wrap">
+      <p class="label">ASC Centre Golf Course</p>
+      <h2 id="intro-title">Eighteen holes, one tee sheet, and a card that keeps itself.</h2>
+      <p class="lede">The club's tee sheet, scorecards and handicaps now live in one place. Members book in a few taps. Guests are added by name. Every player sees the round on their own phone.</p>
+      <div class="facts">
+        <div><b>18</b><span>Holes</span></div>
+        <div><b>72</b><span>Par</span></div>
+        <div><b>6,237</b><span>Yards, White tees</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="trio" aria-label="How it works">
+    <div class="wrap trio-grid">
+      <article class="card">
+        <div class="media"><video autoplay muted loop playsinline preload="metadata" poster="/landing/img/first-tee-poster.jpg" aria-label="A ball on a tee at sunrise"><source src="/landing/video/first-tee.mp4" type="video/mp4"></video><span class="play-hint">Hover to play</span></div>
+        <span class="label">Book</span>
+        <h3>Hold the slot for your group</h3>
+        <p>Choose a 3-ball or a 4-ball and add your players. Members play free. Guests are ₹1,000 each.</p>
+        <a class="link" href="#book">Book a tee time</a>
+        <p class="note">Illustrative video, AI-generated</p>
+      </article>
+      <article class="card">
+        <div class="media"><video autoplay muted loop playsinline preload="metadata" poster="/landing/img/caddie-walk-poster.jpg" aria-label="A caddie walking down a misty fairway" style="object-position:50% center"><source src="/landing/video/caddie-walk.mp4" type="video/mp4"></video><span class="play-hint">Hover to play</span></div>
+        <span class="label">Play</span>
+        <h3>Your caddie knows your time</h3>
+        <p>Caddies see the day's tee sheet and their groups, so nobody is left waiting at the first tee.</p>
+        <a class="link" href="#faq">How caddies are assigned</a>
+        <p class="note">Illustrative video, AI-generated</p>
+      </article>
+      <article class="card">
+        <div class="media"><video autoplay muted loop playsinline preload="metadata" poster="/landing/img/flag-poster.jpg" aria-label="A flag on a green at first light" style="object-position:48% center"><source src="/landing/video/flag.mp4" type="video/mp4"></video><span class="play-hint">Hover to play</span></div>
+        <span class="label">Score</span>
+        <h3>Every player keeps their own card</h3>
+        <p>Each player gets a link. Scores go in hole by hole, and net results are worked out as you play.</p>
+        <a class="link" href="#score">See the scorecard</a>
+        <p class="note">Illustrative video, AI-generated</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="course" id="course" aria-labelledby="course-title">
+    <div class="wrap course-grid">
+      <div class="course-text">
+        <p class="label">The course</p>
+        <h2 id="course-title">A par 72 that asks for every club in the bag.</h2>
+        <p class="lede">Four par fives and four par threes, with the hardest hole on the card in the middle of the front nine.</p>
+        <div class="course-film"><video autoplay muted loop playsinline preload="metadata" poster="/landing/img/course-flyover-poster.jpg" aria-label="A slow glide down a tree-lined fairway"><source src="/landing/video/course-flyover.mp4" type="video/mp4"></video></div>
+        <p class="note">Illustrative video, AI-generated</p>
+      </div>
+      <div class="course-card">
+        <div class="card-head">
+          <p class="label">Scorecard</p>
+          <div class="nines" role="group" aria-label="Nine">
+            <button type="button" aria-pressed="true" data-nine="0">Front nine</button>
+            <button type="button" aria-pressed="false" data-nine="1">Back nine</button>
+          </div>
+        </div>
+        <p class="hole-line" id="hole-line" aria-live="polite"></p>
+        <table class="sc">
+          <thead><tr><th scope="col">Hole</th><th scope="col">Yards</th><th scope="col">Par</th><th scope="col">Index</th></tr></thead>
+          <tbody id="sc-body"></tbody>
+          <tfoot id="sc-foot"></tfoot>
+        </table>
+        <p class="sc-note">Index is the stroke index: 1 is the hardest hole, 18 the easiest. Yardages are from the White tees. Use the arrow keys to step through the holes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="book" id="book" aria-labelledby="book-title">
+    <div class="wrap book-grid">
+      <div class="book-text">
+        <p class="label">Tee times</p>
+        <h2 id="book-title">Book for three or for four.</h2>
+        <p class="lede">Every name is checked against the member roll when you add it, so the fee is right before you confirm.</p>
+        <ul class="rules">
+          <li><span>Member green fee</span><b>₹0</b></li>
+          <li><span>Guest green fee, per player</span><b>₹1,000</b></li>
+          <li><span>Group size</span><b>3-ball or 4-ball</b></li>
+        </ul>
+      </div>
+      <div class="panel" aria-label="Booking demo">
+        <div class="panel-row">
+          <span class="label">Date</span>
+          <div class="days" id="days" role="group" aria-label="Date"></div>
+        </div>
+        <div class="panel-row">
+          <span class="label">Tee time</span>
+          <div class="times" id="times" role="group" aria-label="Tee time"></div>
+        </div>
+        <div class="panel-row">
+          <span class="label">Group</span>
+          <div class="seg" role="group" aria-label="Group size">
+            <button type="button" data-size="3" aria-pressed="false">3-ball</button>
+            <button type="button" data-size="4" aria-pressed="true">4-ball</button>
+          </div>
+        </div>
+        <div class="panel-row">
+          <span class="label">Players</span>
+          <ul class="players" id="players"></ul>
+        </div>
+        <div class="panel-row">
+          <div class="total">
+            <div>
+              <div class="sum" id="sum">₹0</div>
+              <div class="sum-sub" id="sum-sub"></div>
+            </div>
+            <button class="btn" type="button" id="hold">Hold this slot</button>
+          </div>
+          <p class="confirm" id="confirm" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="score" id="score" aria-labelledby="score-title">
+    <div class="wrap score-grid">
+      <div class="score-text">
+        <p class="label">Scoring</p>
+        <h2 id="score-title">One link per player. No pencil, no arguments.</h2>
+        <p class="lede">When a booking is made, everyone in it gets their own scorecard link. They sign in with the name and mobile number used at booking, and the round is waiting for them.</p>
+        <ol class="steps">
+          <li><span><b>Booked.</b> The slot appears for every player, whoever made the booking.</span></li>
+          <li><span><b>Playing.</b> Each player enters their own strokes, hole by hole.</span></li>
+          <li><span><b>Finished.</b> Net scores and handicaps update when the card is signed.</span></li>
+        </ol>
+      </div>
+      <div class="entry" aria-label="Scorecard demo">
+        <div class="entry-top">
+          <h3 id="e-hole">Hole 7</h3>
+          <span id="e-meta"></span>
+        </div>
+        <div class="strip" id="e-strip" role="group" aria-label="Jump to hole"></div>
+        <div class="entry-body" id="e-body"></div>
+        <div class="entry-foot">
+          <button type="button" id="e-prev">Previous</button>
+          <span class="tot" id="e-tot"></span>
+          <button type="button" id="e-next">Next hole</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="index" aria-labelledby="index-title">
+    <div class="wrap index-grid">
+      <div class="index-text">
+        <p class="label">Handicap</p>
+        <h2 id="index-title">Your index, after every round.</h2>
+        <p class="lede">Golf OS keeps your last 20 scores and averages the best 8, the same method the World Handicap System uses.</p>
+        <div class="big"><b id="hcp">14.2</b><span id="hcp-sub">Handicap index<br>example player</span></div>
+        <div class="post">
+          <label for="post-score">Post today's gross score <b id="post-n">86</b></label>
+          <input type="range" id="post-score" min="72" max="105" value="86">
+          <div class="post-row"><span id="post-diff"></span><button class="btn" type="button" id="post-btn">Post round</button></div>
+        </div>
+      </div>
+      <div>
+        <svg class="chart" id="chart" viewBox="0 0 720 320" role="img" aria-label="Score differentials for the last 20 rounds, with the best 8 highlighted"></svg>
+        <div class="legend"><span><i style="background:var(--pine)"></i>Counts towards the index</span><span><i style="border:1px solid var(--ink-3)"></i>Other recent rounds</span></div>
+        <p class="readout" id="readout" aria-live="polite">Tap or hover a round to see it.</p>
+        <p class="note" style="margin-top:4px">Example figures, using an example course rating of 70.5 and slope of 125.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq" id="faq" aria-labelledby="faq-title">
+    <div class="wrap faq-grid">
+      <div>
+        <p class="label">Questions</p>
+        <h2 id="faq-title">Before your first booking.</h2>
+      </div>
+      <div>
+        <details><summary>Do members pay a green fee?</summary><p>No. If a player is on the ASC Centre member roll, their green fee is ₹0. Membership is ₹700 a month.</p></details>
+        <details><summary>Can I book for three instead of four?</summary><p>Yes. Choose a 3-ball or a 4-ball when you pick your time. The slot is held for that group size.</p></details>
+        <details><summary>Someone else booked me. Will I see the round?</summary><p>Yes. Sign in with the name and mobile number used in the booking, and the upcoming round appears with your scorecard link.</p></details>
+        <details><summary>How are caddies assigned?</summary><p>Caddies see the day's tee sheet and are matched to groups by the club. Your caddie's name appears on the booking once assigned.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="close" aria-labelledby="close-title">
+    <img src="/landing/img/club.jpg" alt="A clubhouse veranda at dawn" decoding="async" width="1600" height="893">
+    <div class="close-copy">
+      <h2 id="close-title">See you on the first tee.</h2>
+      <a class="btn ghost" href="/courses/asc-centre-bengaluru/book">Book a tee time</a>
+    </div>
+    <p class="note">Illustrative image, AI-generated</p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div><b>ASC Centre Golf Course</b>Bengaluru, Karnataka</div>
+      <div><a href="#course">The course</a><a href="#book">Tee times</a><a href="#score">Scoring</a></div>
+      <div><a href="#faq">Questions</a><a href="/login">Sign in</a><a href="/bookings">My bookings</a></div>
+    </div>
+    <div class="foot-base"><span>The booking and scoring panels on this page are previews. Real bookings are made on the tee sheet.</span><span>Runs on Golf OS</span></div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const inr = (n) => "₹" + n.toLocaleString("en-IN");
+
+  /* Motion setup: reveals, hero entrance, scroll effects */
+  const root = document.documentElement;
+  const top = $("top");
+  const hero = document.querySelector(".hero");
+  const heroVideo = hero.querySelector("video");
+  const heroCopy = hero.querySelector(".hero-copy");
+  if (!reduced) {
+    root.classList.add("motion");
+    const h1 = hero.querySelector("h1");
+    h1.innerHTML = h1.textContent.split(" ").map((w, i) => `<span class="w"><span style="transition-delay:${0.08 * i}s">${w}</span></span>`).join(" ");
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add("loaded")));
+    const rvSel = ".intro .label, .intro h2, .intro .lede, .facts > div, .card, .course-text > *, .course-card, .book-text > *, .panel, .score-text > .label, .score-text h2, .score-text .lede, .entry, .index-text > *, .index-grid > div:last-child, .faq-grid > div:first-child, .faq details, .close-copy > *";
+    const rvEls = [...document.querySelectorAll(rvSel)];
+    rvEls.forEach((el) => {
+      el.classList.add("rv");
+      const sib = [...el.parentElement.children].filter((c) => rvEls.includes(c)).indexOf(el);
+      el.style.transitionDelay = `${Math.min(sib, 5) * 0.08}s`;
+    });
+    const wipes = [...document.querySelectorAll(".card .media, .course-film")];
+    wipes.forEach((el) => el.classList.add("wipe"));
+    if ("IntersectionObserver" in window) {
+      const rio = new IntersectionObserver((entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add("in"); rio.unobserve(e.target); }
+      }), { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+      [...rvEls, ...wipes].forEach((el) => rio.observe(el));
+    } else {
+      [...rvEls, ...wipes].forEach((el) => el.classList.add("in"));
+    }
+  }
+  let lastY = window.scrollY, ticking = false;
+  const onScroll = () => {
+    const y = window.scrollY;
+    const hh = hero.offsetHeight;
+    top.classList.toggle("solid", y > hh - 80);
+    top.classList.toggle("hide", y > hh && y > lastY + 2);
+    if (y < lastY - 2 || y <= hh) top.classList.remove("hide");
+    if (!reduced && y < hh) {
+      heroVideo.style.transform = `translateY(${y * 0.3}px) scale(${1.08 - Math.min(y / hh, 1) * 0.08})`;
+      heroCopy.style.transform = `translateY(${-y * 0.12}px)`;
+      heroCopy.style.opacity = String(Math.max(0, 1 - y / (hh * 0.7)));
+    }
+    lastY = y; ticking = false;
+  };
+  window.addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+
+  /* Videos: play while visible; the three cards play on hover where hover exists */
+  const videos = [...document.querySelectorAll("video")];
+  const play = (v) => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+  const hoverable = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const cardVideos = hoverable ? [...document.querySelectorAll(".card video")] : [];
+  if (reduced) {
+    videos.forEach((v) => { v.removeAttribute("autoplay"); v.pause(); });
+  } else {
+    cardVideos.forEach((v) => {
+      v.removeAttribute("autoplay"); v.pause();
+      const card = v.closest(".card");
+      card.addEventListener("mouseenter", () => { card.classList.add("playing"); play(v); });
+      card.addEventListener("mouseleave", () => { card.classList.remove("playing"); v.pause(); });
+    });
+    const auto = videos.filter((v) => !cardVideos.includes(v));
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => entries.forEach((e) => (e.isIntersecting ? play(e.target) : e.target.pause())), { threshold: 0.1 });
+      auto.forEach((v) => io.observe(v));
+    } else auto.forEach(play);
+  }
+
+  /* Course data: [hole, par, yards, stroke index] */
+  const HOLES = [[1,4,334,5],[2,4,303,7],[3,5,446,17],[4,4,337,9],[5,3,202,3],[6,5,489,13],[7,4,372,1],[8,3,174,15],[9,4,298,11],[10,5,546,4],[11,4,349,8],[12,4,339,10],[13,3,221,14],[14,4,395,12],[15,4,410,2],[16,4,342,6],[17,3,156,18],[18,5,524,16]];
+  const MAXY = 546;
+  const holeLine = $("hole-line");
+  const describe = ([n, par, yds, si]) => {
+    const note = si === 1 ? "the hardest hole on the card" : si === 18 ? "the easiest hole on the card" : si <= 4 ? "one of the four hardest holes" : yds === MAXY ? "the longest hole on the card" : "";
+    return `Hole ${n} <span>· Par ${par} · ${yds} yards · Index ${si}${note ? ", " + note : ""}</span>`;
+  };
+  const renderNine = (nine) => {
+    const rows = HOLES.slice(nine * 9, nine * 9 + 9);
+    $("sc-body").innerHTML = rows.map((h) => `<tr data-h="${h[0]}" tabindex="0"><td>${h[0]}</td><td class="yd"><span class="bar" style="--w:${(h[2] / MAXY).toFixed(3)}"></span>${h[2]}</td><td>${h[1]}</td><td class="${h[3] <= 4 ? "hard" : ""}">${h[3]}</td></tr>`).join("");
+    const yds = rows.reduce((a, h) => a + h[2], 0);
+    const par = rows.reduce((a, h) => a + h[1], 0);
+    $("sc-foot").innerHTML = `<tr><td>${nine ? "In" : "Out"}</td><td>${yds.toLocaleString("en-IN")}</td><td>${par}</td><td></td></tr><tr><td>Total</td><td>6,237</td><td>72</td><td></td></tr>`;
+    const rowsEls = [...document.querySelectorAll("#sc-body tr")];
+    const show = (h) => {
+      holeLine.innerHTML = describe(h);
+      rowsEls.forEach((r) => r.classList.toggle("on", +r.dataset.h === h[0]));
+    };
+    rowsEls.forEach((tr, i) => {
+      const h = HOLES[+tr.dataset.h - 1];
+      tr.addEventListener("mouseenter", () => show(h));
+      tr.addEventListener("click", () => show(h));
+      tr.addEventListener("focus", () => show(h));
+      tr.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          e.preventDefault();
+          const next = rowsEls[i + (e.key === "ArrowDown" ? 1 : -1)];
+          if (next) next.focus();
+        }
+      });
+    });
+    show(rows.reduce((a, h) => (h[3] < a[3] ? h : a)));
+  };
+  document.querySelectorAll(".nines button").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll(".nines button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    renderNine(+b.dataset.nine);
+  }));
+  renderNine(0);
+
+  /* Booking demo */
+  const PLAYERS = [
+    { name: "You", member: true, fixed: true },
+    { name: "Arjun Rao", member: true },
+    { name: "Priya Nair", member: false },
+    { name: "Karthik Iyer", member: false },
+  ];
+  const state = { day: 0, time: null, size: 4 };
+  const today = new Date();
+  const days = [...Array(7)].map((_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
+  $("days").innerHTML = days.map((d, i) => `<button type="button" data-i="${i}" aria-pressed="${i === 0}"><small>${d.toLocaleDateString("en-IN", { weekday: "short" })}</small><b>${d.getDate()}</b></button>`).join("");
+  const times = [];
+  for (let m = 6 * 60; m <= 8 * 60 + 50; m += 10) times.push(`${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`);
+  const taken = (i) => ((i * 7 + state.day * 5) % 9) < 3;
+  const renderTimes = () => {
+    if (state.time === null || taken(state.time)) state.time = times.findIndex((_, i) => !taken(i));
+    $("times").innerHTML = times.map((t, i) => `<button type="button" data-i="${i}" ${taken(i) ? `disabled aria-label="${t}, taken"` : ""} aria-pressed="${i === state.time}">${t}</button>`).join("");
+  };
+  const renderPlayers = (flashIdx = -1) => {
+    const list = PLAYERS.slice(0, state.size);
+    $("players").innerHTML = list.map((p, i) => {
+      const status = p.fixed ? `<span>Member, booking</span>` : `<button type="button" class="who-tog ${p.member ? "mem" : ""}" data-i="${i}" aria-label="${p.name} is a ${p.member ? "member" : "guest"}. Switch.">${p.member ? "Member" : "Guest"} ⇄</button>`;
+      return `<li><span class="n">${i + 1}</span><span class="who"><b>${p.name}</b>${status}</span><span class="fee ${i === flashIdx ? "flash" : ""}">${p.member ? "₹0" : "₹1,000"}</span></li>`;
+    }).join("");
+    const guests = list.filter((p) => !p.member).length;
+    $("sum").textContent = inr(guests * 1000);
+    $("sum-sub").textContent = `Green fees: ${list.length - guests} ${list.length - guests === 1 ? "member" : "members"}, ${guests} ${guests === 1 ? "guest" : "guests"}`;
+    if (flashIdx >= 0) setTimeout(() => document.querySelectorAll(".fee.flash").forEach((f) => f.classList.remove("flash")), 700);
+  };
+  const clearConfirm = () => { $("confirm").innerHTML = ""; };
+  $("players").addEventListener("click", (e) => {
+    const b = e.target.closest(".who-tog"); if (!b) return;
+    const i = +b.dataset.i;
+    PLAYERS[i].member = !PLAYERS[i].member;
+    renderPlayers(i); clearConfirm();
+    const again = document.querySelector(`.who-tog[data-i="${i}"]`); if (again) again.focus();
+  });
+  $("days").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    state.day = +b.dataset.i;
+    $("days").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    renderTimes(); clearConfirm();
+  });
+  $("times").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b || b.disabled) return;
+    state.time = +b.dataset.i;
+    $("times").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    clearConfirm();
+  });
+  document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
+    state.size = +b.dataset.size;
+    document.querySelectorAll(".seg button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    renderPlayers(); clearConfirm();
+  }));
+  $("hold").addEventListener("click", () => {
+    const d = days[state.day].toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+    const list = PLAYERS.slice(0, state.size);
+    const guests = list.filter((p) => !p.member).length;
+    $("confirm").innerHTML = `<div class="pass"><div><small>Date</small><b>${d}</b></div><div><small>Tee time</small><b>${times[state.time]}</b></div><div><small>Group</small><b>${state.size}-ball</b></div><p>Scorecard links sent to ${list.length} players by SMS. ${guests ? `${inr(guests * 1000)} in guest green fees due at the starter.` : "No green fees: everyone is a member."} This is a preview. <a href="/courses/asc-centre-bengaluru/book">Book a real tee time →</a></p></div>`;
+  });
+  renderTimes(); renderPlayers();
+
+  /* Scoring: steps light up as they scroll past */
+  const steps = [...document.querySelectorAll(".steps li")];
+  if (!reduced && "IntersectionObserver" in window) {
+    const sio = new IntersectionObserver((entries) => entries.forEach((e) => {
+      if (e.isIntersecting) steps.forEach((li) => li.classList.toggle("on", li === e.target));
+    }), { rootMargin: "-40% 0px -45% 0px" });
+    steps.forEach((li) => sio.observe(li));
+  }
+
+  /* Scorecard demo: strokes received = floor(hcp/18) + (index <= hcp % 18) */
+  const CARD = [{ name: "You", hcp: 14 }, { name: "Arjun Rao", hcp: 9 }, { name: "Priya Nair", hcp: 22 }, { name: "Karthik Iyer", hcp: 18 }];
+  const strokes = {};
+  const SEED = [5, 5, 6, 5, 4, 6];
+  SEED.forEach((v, i) => { strokes[`${i + 1}-0`] = v; });
+  let hole = 7;
+  const received = (hcp, si) => Math.floor(hcp / 18) + (si <= hcp % 18 ? 1 : 0);
+  $("e-strip").innerHTML = HOLES.map(([n]) => `<button type="button" data-h="${n}" aria-label="Hole ${n}"><small>${n}</small><b>·</b></button>`).join("");
+  const renderStrip = () => {
+    let netTot = 0, played = 0;
+    $("e-strip").querySelectorAll("button").forEach((b) => {
+      const n = +b.dataset.h, v = strokes[`${n}-0`];
+      const [, par, , si] = HOLES[n - 1];
+      b.setAttribute("aria-current", String(n === hole));
+      b.classList.toggle("done", v !== undefined);
+      b.classList.toggle("under", v !== undefined && v - received(14, si) < par);
+      b.querySelector("b").textContent = v === undefined ? "·" : v;
+      if (v !== undefined) { netTot += v - received(14, si) - par; played++; }
+    });
+    $("e-tot").textContent = played ? `You, thru ${played}: ${netTot === 0 ? "level" : netTot > 0 ? "+" + netTot : netTot} net` : "";
+  };
+  const renderEntry = () => {
+    const [n, par, yds, si] = HOLES[hole - 1];
+    $("e-hole").textContent = `Hole ${n}`;
+    $("e-meta").textContent = `Par ${par} · ${yds} yds · Index ${si}`;
+    $("e-body").innerHTML = CARD.map((p, i) => {
+      const k = `${hole}-${i}`;
+      if (strokes[k] === undefined) strokes[k] = par;
+      const r = received(p.hcp, si);
+      const rel = strokes[k] - r - par;
+      const word = rel === 0 ? "net par" : rel < 0 ? `net ${-rel} under` : `net ${rel} over`;
+      const gets = r ? `Gets ${r} ${r === 1 ? "stroke" : "strokes"}, ` : "";
+      return `<div class="prow"><div><b>${p.name}</b><span>${gets}${word}</span></div><div class="step"><button type="button" data-i="${i}" data-d="-1" aria-label="One fewer stroke for ${p.name}">−</button><output>${strokes[k]}</output><button type="button" data-i="${i}" data-d="1" aria-label="One more stroke for ${p.name}">+</button></div></div>`;
+    }).join("");
+    renderStrip();
+  };
+  $("e-body").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-d]"); if (!b) return;
+    const k = `${hole}-${b.dataset.i}`;
+    strokes[k] = Math.min(12, Math.max(1, strokes[k] + +b.dataset.d));
+    renderEntry();
+    const again = $("e-body").querySelector(`button[data-i="${b.dataset.i}"][data-d="${b.dataset.d}"]`); if (again) again.focus();
+  });
+  $("e-strip").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; hole = +b.dataset.h; renderEntry(); });
+  $("e-prev").addEventListener("click", () => { hole = hole === 1 ? 18 : hole - 1; renderEntry(); });
+  $("e-next").addEventListener("click", () => { hole = hole === 18 ? 1 : hole + 1; renderEntry(); });
+  renderEntry();
+
+  /* Handicap: last 20 differentials, best 8 averaged; post a round to update */
+  const RATING = 70.5, SLOPE = 125;
+  const diffOf = (gross) => Math.round(((gross - RATING) * 113 / SLOPE) * 10) / 10;
+  let DIFFS = [18.4, 16.9, 17.8, 15.2, 19.6, 16.1, 14.8, 17.3, 15.9, 18.8, 14.1, 16.6, 13.9, 17.0, 15.4, 14.6, 16.2, 13.6, 15.1, 14.4];
+  const best8 = (arr) => arr.map((d, i) => [d, i]).sort((a, b) => a[0] - b[0]).slice(0, 8);
+  const indexOf = (arr) => best8(arr).reduce((a, [d]) => a + d, 0) / 8;
+  const W = 720, H = 320, L = 36, R = 12, T = 16, B = 32;
+  const drawChart = (fresh = false) => {
+    const counted = new Set(best8(DIFFS).map(([, i]) => i));
+    const idx = indexOf(DIFFS);
+    const lo = Math.min(12, Math.floor(Math.min(...DIFFS) / 3) * 3), hi = Math.max(21, Math.ceil(Math.max(...DIFFS) / 3) * 3);
+    const x = (i) => L + (i * (W - L - R)) / (DIFFS.length - 1);
+    const y = (v) => T + ((hi - v) * (H - T - B)) / (hi - lo);
+    let svg = "";
+    for (let v = lo; v <= hi; v += 3) svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(29,38,33,.12)"/><text x="0" y="${y(v) + 4}">${v}</text>`;
+    svg += `<line x1="${L}" x2="${W - R}" y1="${y(idx)}" y2="${y(idx)}" stroke="#8E6F36" stroke-dasharray="3 4"/><text x="${L + 6}" y="${y(idx) + 18}" style="fill:#8E6F36">Index ${idx.toFixed(1)}</text>`;
+    svg += `<polyline fill="none" stroke="rgba(29,38,33,.4)" stroke-width="1" points="${DIFFS.map((d, i) => `${x(i)},${y(d)}`).join(" ")}"/>`;
+    svg += DIFFS.map((d, i) => {
+      const cls = fresh && i === DIFFS.length - 1 ? ' class="fresh"' : "";
+      const attrs = `data-i="${i}" tabindex="0" role="button" aria-label="Round ${i + 1}, differential ${d}${counted.has(i) ? ", counts" : ""}"`;
+      return counted.has(i) ? `<circle${cls} ${attrs} cx="${x(i)}" cy="${y(d)}" r="5" fill="#0B2B1E"/>` : `<circle${cls} ${attrs} cx="${x(i)}" cy="${y(d)}" r="4.5" fill="#F7F5F0" stroke="#59615C"/>`;
+    }).join("");
+    svg += `<text x="${L}" y="${H - 6}">20 rounds ago</text><text x="${W - R}" y="${H - 6}" text-anchor="end">Latest round</text>`;
+    $("chart").innerHTML = svg;
+    $("hcp").textContent = idx.toFixed(1);
+    return counted;
+  };
+  let counted = drawChart();
+  const readRound = (c) => {
+    const i = +c.dataset.i, d = DIFFS[i];
+    $("chart").querySelectorAll("circle").forEach((x) => x.classList.toggle("sel", x === c));
+    const ago = DIFFS.length - 1 - i;
+    $("readout").textContent = `${ago === 0 ? "Latest round" : ago === 1 ? "1 round ago" : `${ago} rounds ago`}: differential ${d.toFixed(1)}. ${counted.has(i) ? "One of your best 8, so it counts." : "Not in your best 8, so it doesn't count."}`;
+  };
+  ["mouseover", "click", "focusin"].forEach((ev) => $("chart").addEventListener(ev, (e) => { const c = e.target.closest("circle"); if (c) readRound(c); }));
+  const postPreview = () => {
+    const g = +$("post-score").value;
+    $("post-n").textContent = g;
+    const d = diffOf(g);
+    const next = indexOf([...DIFFS.slice(1), d]);
+    const delta = next - indexOf(DIFFS);
+    $("post-diff").textContent = `Differential ${d.toFixed(1)}. Index would be ${next.toFixed(1)} (${delta === 0 ? "no change" : (delta > 0 ? "+" : "−") + Math.abs(delta).toFixed(1)}).`;
+  };
+  $("post-score").addEventListener("input", postPreview);
+  $("post-btn").addEventListener("click", () => {
+    const before = indexOf(DIFFS);
+    DIFFS = [...DIFFS.slice(1), diffOf(+$("post-score").value)];
+    counted = drawChart(!reduced);
+    const after = indexOf(DIFFS);
+    $("hcp-sub").innerHTML = `Handicap index<br>${after < before ? "down" : after > before ? "up" : "unchanged,"} ${after === before ? "" : Math.abs(after - before).toFixed(1) + " "}after that round`;
+    $("hcp").classList.add("flash"); setTimeout(() => $("hcp").classList.remove("flash"), 900);
+    readRound($("chart").querySelector(`circle[data-i="${DIFFS.length - 1}"]`));
+    postPreview();
+  });
+  postPreview();
+
+})();
+</script>
+</body>
+</html>
