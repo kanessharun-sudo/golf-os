@@ -334,7 +334,7 @@ export function Scorecard({
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-eyebrow uppercase text-brass">Hole</p>
-                <p className="numerals font-display text-6xl leading-none">{hole.number}</p>
+                <p className="numerals font-mono tracking-tight text-6xl leading-none">{hole.number}</p>
               </div>
               <dl className="numerals grid grid-cols-3 gap-5 text-right">
                 <Stat label="Par" value={hole.par} />
@@ -528,8 +528,8 @@ function PlayerRow({
             onClick={() => (entry ? setShowDetail((v) => !v) : set({ strokes: hole.par }))}
             aria-label={entry ? `${player.name}: ${strokes} strokes. Show putts and penalties` : `Record par for ${player.name}`}
             className={cn(
-              "numerals relative flex size-14 items-center justify-center rounded-full font-display text-3xl transition-colors",
-              entry ? scoreTone(strokes - hole.par) : "border border-dashed border-alabaster-300 text-ink-faint",
+              "numerals relative flex size-14 items-center justify-center rounded-full font-mono tracking-tight text-3xl transition-colors",
+              entry ? scoreTone(strokes - hole.par) : "border border-alabaster-300 text-ink-faint",
             )}
           >
             {strokes}
@@ -815,7 +815,7 @@ function ResultPanel({
         <div className="mt-3 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm text-pine-200">Your {myHandicap.track} handicap index</p>
-            <p className="numerals font-display text-5xl leading-tight">
+            <p className="numerals font-mono tracking-tight text-5xl leading-tight">
               {myHandicap.index !== null ? myHandicap.index.toFixed(1) : "—"}
             </p>
             {change !== null ? (
@@ -831,7 +831,7 @@ function ResultPanel({
           {me.differential !== null ? (
             <div className="text-right">
               <p className="text-sm text-pine-200">Score differential</p>
-              <p className="numerals font-display text-3xl">{me.differential.toFixed(1)}</p>
+              <p className="numerals font-mono tracking-tight text-3xl">{me.differential.toFixed(1)}</p>
             </div>
           ) : null}
         </div>

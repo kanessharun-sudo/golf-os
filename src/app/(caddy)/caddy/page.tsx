@@ -37,7 +37,7 @@ export default async function CaddyHomePage() {
             <p className="text-sm font-semibold text-pine">Next group</p>
             {next ? (
               <>
-                <p className="numerals mt-2 font-sans text-3xl font-bold tracking-tight text-ink">{formatTeeTime(next.tee_time)}</p>
+                <p className="numerals mt-2 font-mono text-3xl font-medium tracking-tight text-ink">{formatTeeTime(next.tee_time)}</p>
                 <p className="text-sm text-ink-muted">
                   {next.play_date === today ? "Today" : formatPlayDate(next.play_date, "short")} · {HOLE_FORMAT_LABEL[next.hole_format]}
                 </p>
@@ -102,7 +102,7 @@ export default async function CaddyHomePage() {
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="mt-4 border border-dashed border-alabaster-400 bg-card px-5 py-8 text-center text-sm text-ink-muted">{children}</p>;
+  return <p className="mt-4 border border-alabaster-400 bg-card px-5 py-8 text-center text-sm text-ink-muted">{children}</p>;
 }
 
 function GroupCard({ row, action }: { row: CaddyScheduleRow; action: React.ReactNode }) {
@@ -110,7 +110,7 @@ function GroupCard({ row, action }: { row: CaddyScheduleRow; action: React.React
     <li className="border border-alabaster-300 bg-card p-5 shadow-hairline">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="numerals font-sans text-4xl font-bold tracking-tight text-ink">{formatTeeTime(row.tee_time)}</p>
+          <p className="numerals font-mono text-4xl font-medium tracking-tight text-ink">{formatTeeTime(row.tee_time)}</p>
           <p className="numerals text-sm text-ink-muted">
             {HOLE_FORMAT_LABEL[row.hole_format]}
             {row.start_hole === 10 ? " · starts on 10" : ""} · {row.booking_ref}

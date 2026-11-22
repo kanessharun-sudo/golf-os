@@ -31,8 +31,10 @@ export function PhotoHero({
   );
 }
 
-export function HeroTitle({ children }: { children: React.ReactNode }) {
-  return <h1 className="font-sans text-4xl font-bold tracking-tight text-alabaster sm:text-6xl">{children}</h1>;
+export function HeroTitle({ children, mono = false }: { children: React.ReactNode; mono?: boolean }) {
+  // Times use JetBrains Mono; names and words use the display serif (CLAUDE.md).
+  const face = mono ? "numerals font-mono font-medium tracking-tight" : "font-display font-medium tracking-[-0.02em]";
+  return <h1 className={`${face} text-4xl text-alabaster sm:text-6xl`}>{children}</h1>;
 }
 
 export function SectionTitle({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {

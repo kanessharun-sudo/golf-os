@@ -641,7 +641,7 @@ export function CheckoutFlow(props: Props) {
                     <Row label={`Convenience fee (${quote.convenience_fee_percent}%)`} value={formatPaise(quote.convenience_fee_paise)} />
                     <div className="flex items-baseline justify-between border-t border-alabaster-300 pt-3">
                       <dt className="text-pine">Total</dt>
-                      <dd className="font-display text-3xl text-pine">{formatPaise(quote.total_paise)}</dd>
+                      <dd className="font-mono tracking-tight text-3xl text-pine">{formatPaise(quote.total_paise)}</dd>
                     </div>
                   </dl>
                 ) : (
@@ -745,7 +745,7 @@ function DemoPaymentSheet({
           </button>
         </div>
 
-        <p className="numerals mt-5 font-display text-4xl text-pine">{formatPaise(order.amount)}</p>
+        <p className="numerals mt-5 font-mono tracking-tight text-4xl text-pine">{formatPaise(order.amount)}</p>
 
         <fieldset className="mt-5 space-y-2">
           <legend className="sr-only">Payment method</legend>

@@ -138,7 +138,7 @@ export default async function BookingPage({
           </Link>
         </p>
         <div className="mt-2">
-          <HeroTitle>{formatTeeTime(booking.tee_time)}</HeroTitle>
+          <HeroTitle mono>{formatTeeTime(booking.tee_time)}</HeroTitle>
         </div>
         <p className="mt-2 text-lg font-medium text-alabaster">
           {formatPlayDate(booking.play_date)}
@@ -187,7 +187,7 @@ export default async function BookingPage({
             </p>
             <Link
               href={`/rounds/${round.id}/score`}
-              className="mt-4 inline-flex h-11 items-center rounded-card bg-pine px-5 text-sm font-medium text-alabaster hover:bg-pine-700"
+              className="mt-4 inline-flex h-11 items-center rounded-card bg-brass px-5 text-sm font-medium text-white hover:bg-brass-600"
             >
               {round.status === "in_progress" || round.status === "scheduled"
                 ? "Continue scoring"

@@ -22,7 +22,7 @@ export function Stats({ items }: { items: { label: string; value: string; note?:
       {items.map((item) => (
         <div key={item.label} className="border-b border-r border-alabaster-300 p-4">
           <dt className="text-xs text-ink-muted">{item.label}</dt>
-          <dd className="numerals mt-1 font-display text-3xl text-pine">{item.value}</dd>
+          <dd className="numerals mt-1 font-mono tracking-tight text-3xl text-pine">{item.value}</dd>
           {item.note ? <dd className="mt-0.5 text-xs text-ink-faint">{item.note}</dd> : null}
         </div>
       ))}
@@ -50,7 +50,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function BookingTable({ bookings, showDate = false }: { bookings: AdminBooking[]; showDate?: boolean }) {
   if (bookings.length === 0) {
-    return <p className="mt-6 border border-dashed border-alabaster-400 p-10 text-center text-ink-muted">No bookings.</p>;
+    return <p className="mt-6 border border-alabaster-400 p-10 text-center text-ink-muted">No bookings.</p>;
   }
   return (
     <div className="mt-6 overflow-x-auto border border-alabaster-300 bg-card">
@@ -70,7 +70,7 @@ export function BookingTable({ bookings, showDate = false }: { bookings: AdminBo
             <tr key={b.id} className="border-b border-alabaster-200 align-top last:border-0">
               {showDate ? <td className="numerals whitespace-nowrap px-4 py-3 text-ink-muted">{formatPlayDate(b.playDate, "short")}</td> : null}
               <td className="whitespace-nowrap px-4 py-3">
-                <span className="numerals font-display text-xl text-pine">{formatTeeTime(b.teeTime)}</span>
+                <span className="numerals font-mono tracking-tight text-xl text-pine">{formatTeeTime(b.teeTime)}</span>
                 <span className="block text-xs text-ink-faint">
                   {HOLE_FORMAT_LABEL[b.holeFormat]}
                   {b.startHole === 10 ? " · hole 10" : ""}

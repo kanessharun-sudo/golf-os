@@ -137,7 +137,7 @@ export default async function AdminBookingPage({ params }: { params: Promise<{ i
               ))}
               <div className="flex justify-between border-t border-alabaster-300 pt-2">
                 <dt>Total</dt>
-                <dd className="font-display text-2xl text-pine">{b.payment_status === "waived" && b.total_paise === 0 ? "Free" : formatPaise(b.total_paise)}</dd>
+                <dd className="font-mono tracking-tight text-2xl text-pine">{b.payment_status === "waived" && b.total_paise === 0 ? "Free" : formatPaise(b.total_paise)}</dd>
               </div>
               {b.refund_paise > 0 ? (
                 <div className="flex justify-between text-destructive">

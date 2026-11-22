@@ -150,7 +150,7 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
               className={cn(
                 "numerals flex w-16 shrink-0 flex-col items-center rounded-card border py-2.5 transition-colors",
                 active ? "border-brass bg-brass text-white" : "border-alabaster-300 bg-card text-pine hover:border-pine/40",
-                d.closed && "cursor-not-allowed border-dashed bg-transparent text-ink-faint",
+                d.closed && "cursor-not-allowed bg-transparent text-ink-faint",
               )}
             >
               <span className="text-eyebrow uppercase">{weekday}</span>
@@ -238,7 +238,7 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
       {/* Slots */}
       <div className={cn("mt-8 space-y-10 transition-opacity", navigating && "opacity-50")}>
         {grouped.length === 0 ? (
-          <p className="rounded-card border border-dashed border-alabaster-400 p-10 text-center text-ink-muted">
+          <p className="rounded-card border border-alabaster-400 p-10 text-center text-ink-muted">
             No {HOLE_FORMAT_LABEL[format].toLowerCase()} tee times on this date.
           </p>
         ) : (
@@ -272,7 +272,7 @@ export function TeeSheet({ course, dates, date, format, players, slots, signedIn
                           )}
                         >
                           <span className="flex items-center justify-between">
-                            <span className="font-display text-2xl">{formatTeeTime(slot.tee_time)}</span>
+                            <span className="font-mono tracking-tight text-2xl">{formatTeeTime(slot.tee_time)}</span>
                             {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
                           </span>
                           <span className="mt-2 flex items-center gap-1" aria-label={`${slot.seats_left} of ${course.maxPlayers} seats free`}>
