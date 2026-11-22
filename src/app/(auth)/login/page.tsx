@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSessionContext } from "@/lib/auth/session";
+import { isDemoPayments } from "@/lib/env";
 import { safeNextPath } from "@/lib/redirects";
+import { DemoGolferButton } from "./demo-golfer-button";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Sign in" };
@@ -32,6 +34,16 @@ export default async function LoginPage({
         New here? Signing in creates your Golf OS account, with your handicap and rounds in one place.
       </p>
       <div className="mt-8 rounded-card bg-alabaster-50 p-6 text-ink shadow-card sm:p-8">
+        {isDemoPayments() ? (
+          <div className="mb-6 space-y-6">
+            <DemoGolferButton nextPath={nextPath} />
+            <div className="flex items-center gap-3 text-eyebrow uppercase text-ink-faint">
+              <span className="h-px flex-1 bg-alabaster-300" />
+              or use your own account
+              <span className="h-px flex-1 bg-alabaster-300" />
+            </div>
+          </div>
+        ) : null}
         <LoginForm nextPath={nextPath} initialError={error ? (CALLBACK_ERRORS[error] ?? null) : null} />
       </div>
     </div>
