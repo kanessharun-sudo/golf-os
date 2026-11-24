@@ -71,14 +71,14 @@ p { margin: 0; }
 
 /* Hero: the tee sheet is the first thing you see */
 .hero { padding-block: clamp(48px, 8vw, 96px) clamp(64px, 8vw, 96px); }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 80px); align-items: start; }
-.hero-text { padding-top: 16px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 6vw, 80px); align-items: center; }
+.hero-text { padding-bottom: 32px; }
 .hero h1 { max-width: 11em; }
 .hero .lede { margin-top: 24px; }
 .fees { margin: 32px 0 0; display: grid; grid-template-columns: auto auto; justify-content: start; gap: 8px 32px; font-size: 15px; }
 .fees dt { color: var(--ink-2); }
 .fees dd { margin: 0; font-family: var(--mono); font-size: 14px; font-variant-numeric: tabular-nums; }
-@media (max-width: 960px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } .hero-text { padding-top: 0; } }
+@media (max-width: 960px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } .hero-text { padding-bottom: 0; } }
 
 /* Booking panel */
 .panel { background: var(--card); border: 1px solid var(--line-2); border-radius: 6px; }
@@ -88,6 +88,8 @@ p { margin: 0; }
 .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
 .days button { background: none; border: 1px solid var(--line); border-radius: 4px; padding: 8px 0; cursor: pointer; line-height: 1.25; }
 .days button:hover { border-color: var(--line-2); }
+.days button:disabled { cursor: not-allowed; background: var(--stone, #EBE5D8); border-color: transparent; color: var(--ink-3); }
+.days button:disabled b { font-weight: 400; }
 .days button small { display: block; font-size: 12px; color: var(--ink-3); }
 .days button b { font-family: var(--mono); font-weight: 500; font-size: 16px; font-variant-numeric: tabular-nums; }
 .days button[aria-pressed="true"] { background: var(--pine); border-color: var(--pine); color: var(--on-pine); }
@@ -134,7 +136,7 @@ p { margin: 0; }
 .card-wrap { margin-top: 48px; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line-2); border-radius: 6px; background: var(--card); }
 table.sc { border-collapse: collapse; width: 100%; min-width: 880px; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; }
 /* Row heads in capitals: a printed scorecard does it this way. */
-.sc th[scope="row"] { position: sticky; left: 0; z-index: 1; background: var(--card); text-align: left; font-weight: 500; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); padding: 0 12px; width: 88px; border-right: 1px solid var(--line-2); }
+.sc th[scope="row"] { position: sticky; left: 0; z-index: 1; background: var(--card); text-align: left; font-weight: 500; font-size: 13px; color: var(--ink-2); padding: 0 12px; width: 88px; border-right: 1px solid var(--line-2); }
 .sc td { text-align: center; height: 40px; padding: 0 2px; border-left: 1px solid var(--line); cursor: default; }
 .sc tr + tr th, .sc tr + tr td { border-top: 1px solid var(--line); }
 .sc tr.holes td { font-weight: 500; background: var(--raised); }
@@ -215,7 +217,18 @@ table.sc { border-collapse: collapse; width: 100%; min-width: 880px; font-family
 
 /* Questions */
 .faq { border-top: 1px solid var(--line); padding-block: clamp(64px, 9vw, 128px); }
+.faq .wrap { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(40px, 6vw, 96px); align-items: start; }
 .faq-in { max-width: 720px; }
+.rules { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 24px; margin-top: 8px; }
+.rules h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 24px; letter-spacing: -0.02em; }
+.rules dl { margin: 16px 0 0; display: grid; grid-template-columns: 1fr auto; }
+.rules dt, .rules dd { margin: 0; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }
+.rules dt { color: var(--ink-2); }
+.rules dd { font-family: var(--mono); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; }
+.rules dd.w { font-family: var(--sans); font-size: 15px; }
+.rules dd .n { font-family: var(--mono); font-size: 14px; }
+.rules .cap { margin: 16px 0 0; }
+@media (max-width: 960px) { .faq .wrap { grid-template-columns: minmax(0, 1fr); } .rules { margin-top: 0; } }
 .faq-list { margin-top: 32px; }
 .faq details { border-top: 1px solid var(--line); }
 .faq details:last-child { border-bottom: 1px solid var(--line); }
@@ -256,11 +269,12 @@ footer { background: var(--raised); border-top: 1px solid var(--line); color: va
   <section class="hero" id="book" aria-labelledby="hero-title">
     <div class="wrap hero-grid">
       <div class="hero-text">
-        <h1 id="hero-title">Book a tee time at ASC Centre.</h1>
-        <p class="lede">Pick a morning slot for your 3-ball or 4-ball and add your players by name. Each one is checked against the member roll, so the fee is right before you confirm.</p>
+        <h1 id="hero-title">Book a tee time at ASC Centre</h1>
+        <p class="lede">Pick a tee time for your 3-ball or 4-ball and add your players by name. Each one is checked against the member roll, so the fee is right before you confirm.</p>
         <dl class="fees">
           <dt>Members</dt><dd>₹0</dd>
-          <dt>Guests, per player</dt><dd>₹1,000, paid at the starter</dd>
+          <dt>Guests, per player</dt><dd>₹1,000</dd>
+          <dt>Booking fee</dt><dd>2.5%</dd>
           <dt>Groups</dt><dd>3-ball or 4-ball</dd>
         </dl>
       </div>
@@ -304,7 +318,7 @@ footer { background: var(--raised); border-top: 1px solid var(--line); color: va
   <section class="course" id="course" aria-labelledby="course-title">
     <div class="wrap">
       <div class="course-head">
-        <h2 id="course-title">Par 72, 6,237 yards from the White tees.</h2>
+        <h2 id="course-title">Par 72, 6,237 yards from the White tees</h2>
         <p class="lede">Four par fives and four par threes. The hardest hole on the card is the 7th, a 372-yard par 4 in the middle of the front nine.</p>
       </div>
       <div class="card-wrap">
@@ -335,7 +349,7 @@ footer { background: var(--raised); border-top: 1px solid var(--line); color: va
         </div>
       </div>
       <div class="score-text">
-        <h2 id="score-title">Each player keeps their own card.</h2>
+        <h2 id="score-title">Each player keeps their own card</h2>
         <p class="lede">Everyone in the booking gets a scorecard link by SMS. They sign in with the name and mobile number used at booking and enter their own strokes, hole by hole. Net scores are worked out as they play.</p>
         <ol class="steps">
           <li><span><b>Booked.</b> The round appears for every player, whoever made the booking.</span></li>
@@ -350,7 +364,7 @@ footer { background: var(--raised); border-top: 1px solid var(--line); color: va
     <div class="wrap">
       <div class="index-head">
         <div>
-          <h2 id="index-title">Your handicap index, after every signed card.</h2>
+          <h2 id="index-title">Your handicap index, after every signed card</h2>
           <p class="lede">Golf OS keeps your last 20 score differentials and averages the best 8, the World Handicap System method.</p>
         </div>
         <p class="big"><b id="hcp">14.5</b><span id="hcp-sub">Handicap index, example player</span></p>
@@ -385,6 +399,20 @@ footer { background: var(--raised); border-top: 1px solid var(--line); color: va
         </div>
         <p class="after"><a class="btn" href="/courses/asc-centre-bengaluru/book">Book a tee time</a></p>
       </div>
+      <aside class="rules" aria-labelledby="rules-title">
+        <h3 id="rules-title">Starter's notice</h3>
+        <dl>
+          <dt>First tee</dt><dd>05:00</dd>
+          <dt>Last tee, 18 holes</dt><dd>13:30</dd>
+          <dt>Last tee, 9 holes</dt><dd>15:45</dd>
+          <dt>Interval</dt><dd class="w"><span class="n">15</span> min</dd>
+          <dt>Booking opens</dt><dd class="w"><span class="n">30</span> days ahead</dd>
+          <dt>Online cut-off</dt><dd class="w"><span class="n">30</span> min before tee</dd>
+          <dt>Slot held while you pay</dt><dd class="w"><span class="n">7</span> min</dd>
+          <dt>Closed</dt><dd class="w">Tuesdays</dd>
+        </dl>
+        <p class="cap">Arrive at the starter's hut 20 minutes before your tee time with the booking reference.</p>
+      </aside>
     </div>
   </section>
 </main>
@@ -457,9 +485,16 @@ footer { background: var(--raised); border-top: 1px solid var(--line); color: va
   const state = { day: 0, time: null, size: 4 };
   const today = new Date();
   const days = [...Array(7)].map((_, i) => { const d = new Date(today); d.setDate(d.getDate() + i); return d; });
-  $("days").innerHTML = days.map((d, i) => `<button type="button" data-i="${i}" aria-pressed="${i === 0}"><small>${d.toLocaleDateString("en-IN", { weekday: "short" })}</small><b>${d.getDate()}</b></button>`).join("");
+  const closed = (d) => d.getDay() === 2;
+  state.day = days.findIndex((d) => !closed(d));
+  $("days").innerHTML = days.map((d, i) => {
+    const wd = d.toLocaleDateString("en-IN", { weekday: "short" });
+    return closed(d)
+      ? `<button type="button" data-i="${i}" disabled aria-label="${wd} ${d.getDate()}, course closed"><small>Closed</small><b>${d.getDate()}</b></button>`
+      : `<button type="button" data-i="${i}" aria-pressed="${i === state.day}"><small>${wd}</small><b>${d.getDate()}</b></button>`;
+  }).join("");
   const times = [];
-  for (let m = 6 * 60; m <= 8 * 60 + 50; m += 10) times.push(`${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`);
+  for (let m = 5 * 60; m <= 7 * 60 + 45; m += 15) times.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
   const taken = (i) => ((i * 7 + state.day * 5) % 9) < 3;
   const renderTimes = () => {
     if (state.time === null || taken(state.time)) state.time = times.findIndex((_, i) => !taken(i));
@@ -485,7 +520,7 @@ footer { background: var(--raised); border-top: 1px solid var(--line); color: va
     const again = document.querySelector(`.who-tog[data-i="${i}"]`); if (again) again.focus();
   });
   $("days").addEventListener("click", (e) => {
-    const b = e.target.closest("button"); if (!b) return;
+    const b = e.target.closest("button"); if (!b || b.disabled) return;
     state.day = +b.dataset.i;
     $("days").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
     renderTimes(); clearConfirm();
